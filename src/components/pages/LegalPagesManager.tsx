@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, Eye, FileText, Globe, CheckCircle, Clock } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface LegalPage {
   _id?: string;
@@ -31,7 +31,7 @@ export default function LegalPagesManager() {
   const fetchPages = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE}/legal`);
+      const response = await axios.get(`${API_BASE_URL}/legal`);
       setLegalPages(response.data);
       if (response.data.length > 0 && !selectedPageId) {
         setSelectedPageId(response.data[0]._id);
@@ -49,7 +49,7 @@ export default function LegalPagesManager() {
   const handleSaveDraft = async () => {
     if (selectedPage && selectedPageId) {
       try {
-        const response = await axios.put(`${API_BASE}/legal/${selectedPageId}`, {
+        const response = await axios.put(`${API_BASE_URL}/legal/${selectedPageId}`, {
           ...selectedPage,
           status: 'draft'
         });
@@ -65,7 +65,7 @@ export default function LegalPagesManager() {
   const handlePublish = async () => {
     if (selectedPage && selectedPageId) {
       try {
-        const response = await axios.put(`${API_BASE}/legal/${selectedPageId}`, {
+        const response = await axios.put(`${API_BASE_URL}/legal/${selectedPageId}`, {
           ...selectedPage,
           status: 'published'
         });
@@ -89,7 +89,7 @@ export default function LegalPagesManager() {
     };
 
     try {
-      const response = await axios.post(`${API_BASE}/legal`, newPageData);
+      const response = await axios.post(`${API_BASE_URL}/legal`, newPageData);
       setLegalPages([...legalPages, response.data]);
       setSelectedPageId(response.data._id);
       setEditMode(true);
@@ -104,7 +104,7 @@ export default function LegalPagesManager() {
   const handleDeletePage = async (id: string) => {
     if (confirm('Are you sure you want to delete this legal page?')) {
       try {
-        await axios.delete(`${API_BASE}/legal/${id}`);
+        await axios.delete(`${API_BASE_URL}/legal/${id}`);
         const updatedList = legalPages.filter(p => p._id !== id);
         setLegalPages(updatedList);
         if (selectedPageId === id) {

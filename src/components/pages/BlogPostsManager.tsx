@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, Save, Eye, X, Calendar, Tag, Upload, Search, Filter, Image as ImageIcon } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface BlogPost {
   _id?: string;
@@ -46,7 +46,7 @@ export default function BlogPostsManager() {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/blogs`);
+      const res = await axios.get(`${API_BASE_URL}/blogs`);
       setPosts(res.data);
     } catch (err) {
       console.error("Error fetching blog posts:", err);
@@ -117,10 +117,10 @@ export default function BlogPostsManager() {
 
     try {
       if (editingPost) {
-        await axios.put(`${API_BASE}/blogs/${editingPost._id}`, data);
+        await axios.put(`${API_BASE_URL}/blogs/${editingPost._id}`, data);
         setToast('Blog post updated successfully!');
       } else {
-        await axios.post(`${API_BASE}/blogs`, data);
+        await axios.post(`${API_BASE_URL}/blogs`, data);
         setToast('Blog post created successfully!');
       }
       fetchPosts();
@@ -135,7 +135,7 @@ export default function BlogPostsManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this blog post?')) {
       try {
-        await axios.delete(`${API_BASE}/blogs/${id}`);
+        await axios.delete(`${API_BASE_URL}/blogs/${id}`);
         setPosts(posts.filter(p => p._id !== id));
         setToast('Blog post deleted successfully!');
       } catch (err) {
@@ -230,7 +230,7 @@ export default function BlogPostsManager() {
             <div className="relative h-48 bg-gradient-to-br from-[#0F1115] to-[#16181D] overflow-hidden group">
               {post.featuredImage ? (
                 <img
-                  src={post.featuredImage.startsWith('http') ? post.featuredImage : `http://localhost:5000/${post.featuredImage}`}
+                  src={post.featuredImage.startsWith('http') ? post.featuredImage : `API_BASE_URL/${post.featuredImage}`}
                   alt={post.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
@@ -505,7 +505,7 @@ export default function BlogPostsManager() {
                   {(formData.featuredImage && !uploadingFile) && (
                     <div className="border border-[rgba(136,136,136,0.25)] rounded-lg overflow-hidden">
                       <img
-                        src={formData.featuredImage.startsWith('http') ? formData.featuredImage : `http://localhost:5000/${formData.featuredImage}`}
+                        src={formData.featuredImage.startsWith('http') ? formData.featuredImage : `API_BASE_URL/${formData.featuredImage}`}
                         alt="Preview"
                         className="w-full h-48 object-cover"
                       />

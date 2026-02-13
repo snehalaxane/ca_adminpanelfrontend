@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, Image as ImageIcon, GripVertical, Filter, Upload, X } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface GalleryImage {
   _id?: string;
@@ -37,7 +37,7 @@ export default function GalleryManager() {
 
   const fetchImages = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/gallery`);
+      const response = await axios.get(`${API_BASE_URL}/gallery`);
       setImages(response.data);
     } catch (err) {
       console.error('Error fetching gallery:', err);
@@ -73,7 +73,7 @@ export default function GalleryManager() {
     }
 
     try {
-      await axios.post(`${API_BASE}/gallery`, data);
+      await axios.post(`${API_BASE_URL}/gallery`, data);
       setToast('Image uploaded successfully!');
       fetchImages();
       setShowUploadModal(false);
@@ -104,7 +104,7 @@ export default function GalleryManager() {
 
   const handleUpdateImage = async (id: string, updates: Partial<GalleryImage>) => {
     try {
-      const response = await axios.put(`${API_BASE}/gallery/${id}`, updates);
+      const response = await axios.put(`${API_BASE_URL}/gallery/${id}`, updates);
       setImages(images.map(img => img._id === id ? response.data : img));
     } catch (err) {
       setToast('Error updating image');
@@ -115,7 +115,7 @@ export default function GalleryManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this image?')) {
       try {
-        await axios.delete(`${API_BASE}/gallery/${id}`);
+        await axios.delete(`${API_BASE_URL}/gallery/${id}`);
         setImages(images.filter(img => img._id !== id));
         setToast('Image deleted successfully!');
       } catch (err) {
@@ -200,7 +200,7 @@ export default function GalleryManager() {
               >
                 <div className="relative">
                   <img
-                    src={image.url.startsWith('http') ? image.url : `http://localhost:5000/${image.url}`}
+                    src={image.url.startsWith('http') ? image.url : `${API_BASE_URL}/${image.url}`}
                     alt={image.title}
                     className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105"
                   />

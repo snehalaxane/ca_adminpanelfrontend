@@ -22,7 +22,7 @@ export default function FooterContactManager() {
   const fetchFooter = async () => {
     try {
      const res = await axios.get(
-  `${import.meta.env.VITE_API_BASE_URL}/api/footer-contact`
+  `${API_BASE_URL}/api/footer-contact`
 );
 
       if (res.data) {
@@ -36,7 +36,7 @@ export default function FooterContactManager() {
   const handleSave = async () => {
     try {
      await axios.put(
-  `${import.meta.env.VITE_API_BASE_URL}/api/footer-contact`,
+  `${API_BASE_URL}/api/footer-contact`,
   contactData
 );
       setToast('Footer Contact saved successfully!');

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Save, Download, Eye, Building2, Users } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function NetworkingManager() {
   const [domesticContent, setDomesticContent] = useState({
@@ -24,7 +24,7 @@ export default function NetworkingManager() {
 
   const fetchContent = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/networking-content`);
+      const res = await axios.get(`${API_BASE_URL}/networking-content`);
       if (res.data) setDomesticContent(res.data);
     } catch (err) {
       console.error("Error fetching content:", err);
@@ -33,7 +33,7 @@ export default function NetworkingManager() {
 
   const fetchAssociates = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/networking-associates`);
+      const res = await axios.get(`${API_BASE_URL}/networking-associates`);
       setAssociates(res.data);
     } catch (err) {
       console.error("Error fetching associates:", err);
@@ -42,7 +42,7 @@ export default function NetworkingManager() {
 
   const fetchSubmissions = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/networking-submissions`);
+      const res = await axios.get(`${API_BASE_URL}/networking-submissions`);
       setSubmissions(res.data);
     } catch (err) {
       console.error("Error fetching submissions:", err);
@@ -51,7 +51,7 @@ export default function NetworkingManager() {
 
   const handleSaveContent = async () => {
     try {
-      await axios.put(`${API_BASE}/networking-content`, domesticContent);
+      await axios.put(`${API_BASE_URL}/networking-content`, domesticContent);
       setToast('Networking content saved!');
       setTimeout(() => setToast(''), 3000);
     } catch (err) {
@@ -61,7 +61,7 @@ export default function NetworkingManager() {
 
   const handleAddAssociate = async () => {
     try {
-      const res = await axios.post(`${API_BASE}/networking-associates`, { name: 'New Firm', icon: 'Building2', enabled: true });
+      const res = await axios.post(`${API_BASE_URL}/networking-associates`, { name: 'New Firm', icon: 'Building2', enabled: true });
       setAssociates([...associates, res.data]);
     } catch (err) {
       setToast('Error adding associate');
@@ -74,7 +74,7 @@ export default function NetworkingManager() {
     const newItem = { ...item, [field]: value };
     setAssociates(associates.map(a => a._id === id ? newItem : a));
     try {
-      await axios.put(`${API_BASE}/networking-associates/${id}`, newItem);
+      await axios.put(`${API_BASE_URL}/networking-associates/${id}`, newItem);
     } catch (err) {
       console.error("Error updating associate:", err);
     }
@@ -82,7 +82,7 @@ export default function NetworkingManager() {
 
   const deleteAssociate = async (id: string) => {
     try {
-      await axios.delete(`${API_BASE}/networking-associates/${id}`);
+      await axios.delete(`${API_BASE_URL}/networking-associates/${id}`);
       setAssociates(associates.filter(a => a._id !== id));
     } catch (err) {
       setToast('Error deleting associate');
@@ -286,7 +286,7 @@ export default function NetworkingManager() {
                       </td>
                       <td className="px-4 py-3 text-sm">
                         {sub.profileFile ? (
-                          <a href={`http://localhost:5000/${sub.profileFile}`} target="_blank" className="text-[#0077b5] hover:text-[#005a8c] hover:underline flex items-center gap-1 transition-colors">
+                          <a href={`${API_BASE_URL}/${sub.profileFile}`} target="_blank" className="text-[#0077b5] hover:text-[#005a8c] hover:underline flex items-center gap-1 transition-colors">
                             <Download className="w-3 h-3" /> View CV
                           </a>
                         ) : <span className="text-[#888888]">No File</span>}

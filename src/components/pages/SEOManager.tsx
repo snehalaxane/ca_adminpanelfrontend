@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Eye, Upload } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface PageSEO {
   _id?: string;
@@ -30,7 +30,7 @@ export default function SEOManager() {
   const fetchSEOConfigs = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE}/seo`);
+      const response = await axios.get(`${API_BASE_URL}/seo`);
       setPages(response.data);
       if (response.data.length > 0 && !editingPageName) {
         setEditingPageName(response.data[0].pageName);
@@ -48,7 +48,7 @@ export default function SEOManager() {
   const handleSave = async () => {
     if (!currentPage) return;
     try {
-      await axios.put(`${API_BASE}/seo/${currentPage.pageName}`, currentPage);
+      await axios.put(`${API_BASE_URL}/seo/${currentPage.pageName}`, currentPage);
       setToast('SEO settings saved successfully!');
     } catch (err) {
       console.error('Error saving SEO config:', err);
@@ -74,7 +74,7 @@ export default function SEOManager() {
     };
 
     try {
-      const response = await axios.put(`${API_BASE}/seo/${pageName}`, newPage);
+      const response = await axios.put(`${API_BASE_URL}/seo/${pageName}`, newPage);
       setPages([...pages, response.data]);
       setEditingPageName(pageName);
       setToast('New SEO page added!');
@@ -91,7 +91,7 @@ export default function SEOManager() {
 
     if (confirm(`Are you sure you want to delete SEO settings for "${pageName}"?`)) {
       try {
-        await axios.delete(`${API_BASE}/seo/${pageName}`);
+        await axios.delete(`${API_BASE_URL}/seo/${pageName}`);
         setPages(pages.filter(p => p.pageName !== pageName));
         setEditingPageName('Home');
         setToast('SEO page deleted!');

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, Save, Download, Upload, X, Calendar, FileText, Search, Filter } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Newsletter {
   _id?: string;
@@ -49,7 +49,7 @@ export default function NewsletterManager() {
 
   const fetchNewsletters = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/newsletters`);
+      const res = await axios.get(`${API_BASE_URL}/newsletters`);
       setNewsletters(res.data);
     } catch (err) {
       console.error("Error fetching newsletters:", err);
@@ -106,10 +106,10 @@ export default function NewsletterManager() {
 
     try {
       if (editingNewsletter) {
-        await axios.put(`${API_BASE}/newsletters/${editingNewsletter._id}`, data);
+        await axios.put(`${API_BASE_URL}/newsletters/${editingNewsletter._id}`, data);
         setToast('Newsletter updated successfully!');
       } else {
-        await axios.post(`${API_BASE}/newsletters`, data);
+        await axios.post(`${API_BASE_URL}/newsletters`, data);
         setToast('Newsletter added successfully!');
       }
       fetchNewsletters();
@@ -123,7 +123,7 @@ export default function NewsletterManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this newsletter?')) {
       try {
-        await axios.delete(`${API_BASE}/newsletters/${id}`);
+        await axios.delete(`${API_BASE_URL}/newsletters/${id}`);
         setNewsletters(newsletters.filter(n => n._id !== id));
         setToast('Newsletter deleted successfully!');
       } catch (err) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, GripVertical, Save, X, Briefcase, MapPin, User, Upload, Image as ImageIcon } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Alumni {
   _id?: string;
@@ -47,7 +47,7 @@ export default function AlumniManager() {
 
   const fetchAlumni = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/alumni`);
+      const response = await axios.get(`${API_BASE_URL}/alumni`);
       setAlumni(response.data);
     } catch (err) {
       console.error('Error fetching alumni:', err);
@@ -131,10 +131,10 @@ export default function AlumniManager() {
 
     try {
       if (editingAlumni) {
-        await axios.put(`${API_BASE}/alumni/${editingAlumni._id}`, data);
+        await axios.put(`${API_BASE_URL}/alumni/${editingAlumni._id}`, data);
         setToast('Alumni updated successfully!');
       } else {
-        await axios.post(`${API_BASE}/alumni`, data);
+        await axios.post(`${API_BASE_URL}/alumni`, data);
         setToast('Alumni added successfully!');
       }
       fetchAlumni();
@@ -149,7 +149,7 @@ export default function AlumniManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this alumni?')) {
       try {
-        await axios.delete(`${API_BASE}/alumni/${id}`);
+        await axios.delete(`${API_BASE_URL}/alumni/${id}`);
         setToast('Alumni deleted successfully!');
         fetchAlumni();
       } catch (err) {

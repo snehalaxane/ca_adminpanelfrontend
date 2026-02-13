@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 import {
   Globe,
   FileText,
@@ -63,13 +65,14 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
     setError(null);
     try {
       // Fetch admin data
-      const adminRes = await fetch("http://localhost:5000/api/admin/me", {
+       
+      const adminRes = await fetch(`${API_BASE_URL}/api/admin/me`, {
         credentials: "include",
       });
 
       if (adminRes.ok) {
         const adminData = await adminRes.json();
-        console.log("ADMIN /me RESPONSE 👉", adminData);
+        // console.log("ADMIN /me RESPONSE 👉", adminData);
         if (adminData.authenticated) {
           setAdmin(adminData);
         }
@@ -77,12 +80,12 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
 
       // Fetch all stats in parallel
       const [teamRes, blogRes, galleryRes, mapRes, jobRes, settingsRes] = await Promise.all([
-        fetch("http://localhost:5000/api/team-members", { credentials: "include" }),
-        fetch("http://localhost:5000/api/blogs", { credentials: "include" }),
-        fetch("http://localhost:5000/api/gallery", { credentials: "include" }),
-        fetch("http://localhost:5000/api/map-locations", { credentials: "include" }),
-        fetch("http://localhost:5000/api/job-openings", { credentials: "include" }),
-        fetch("http://localhost:5000/api/settings/general", { credentials: "include" })
+        fetch(`${API_BASE_URL}/api/team-members`, { credentials: "include" }),
+        fetch(`${API_BASE_URL}/api/blogs`, { credentials: "include" }),
+        fetch(`${API_BASE_URL}/api/gallery`, { credentials: "include" }),
+        fetch(`${API_BASE_URL}/api/map-locations`, { credentials: "include" }),
+        fetch(`${API_BASE_URL}/api/job-openings`, { credentials: "include" }),
+        fetch(`${API_BASE_URL}/api/settings/general`, { credentials: "include" })
       ]);
 
       let teamCount = 0;
