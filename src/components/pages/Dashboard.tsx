@@ -64,11 +64,23 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('admin_token');
+      // Check for token in URL first (from login redirect)
+      const params = new URLSearchParams(window.location.search);
+      let token = params.get('token');
+      
+      if (token) {
+        console.log("✅ Token found in URL, saving to localStorage");
+        localStorage.setItem('admin_token', token);
+        // Remove token from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        token = localStorage.getItem('admin_token');
+      }
+      
       console.log("🔍 Dashboard loading, token from localStorage:", token ? `✓ ${token.substring(0, 20)}...` : "✗ NO TOKEN");
       
       if (!token) {
-        console.warn("❌ No token found in localStorage");
+        console.warn("❌ No token found in localStorage or URL");
         setError('Not authenticated. Please login.');
         setLoading(false);
         return;

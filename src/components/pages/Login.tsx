@@ -77,11 +77,11 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       setEmail('');
       setPassword('');
 
-      // Use a longer delay to ensure localStorage persists
-      setTimeout(() => {
-        console.log("🔄 Redirecting to dashboard...");
-        window.location.href = '/';
-      }, 1000);
+      // Wait to ensure token is saved, then redirect with token as fallback
+      await new Promise(r => setTimeout(r, 500));
+      
+      // Redirect and let the page initialization save the token
+      window.location.href = `/?token=${encodeURIComponent(data.token)}`;
     } catch (err) {
       console.error('❌ Login error:', err);
       setError(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
