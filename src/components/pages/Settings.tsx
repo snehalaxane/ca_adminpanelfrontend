@@ -234,7 +234,7 @@ export default function Settings() {
                     onChange={(e) => setSettings({ ...settings, maintenanceMode: e.target.checked })}
                     className="w-4 h-4 text-[#022683] border-gray-300 rounded focus:ring-[#022683] transition-all"
                   />
-                  <span className="text-sm text-[#888888] group-hover:text-[#E6E6E6] transition-colors">Enable Maintenance Mode</span>
+                  {/* <span className="text-sm text-[#888888] group-hover:text-[#E6E6E6] transition-colors">Enable Maintenance Mode</span> */}
                 </label>
               </div>
             </div>

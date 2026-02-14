@@ -12,6 +12,8 @@ export default function ServicesManager() {
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+const [deleting, setDeleting] = useState(false);
 
   // Form State for Editing/Adding
   const [formData, setFormData] = useState<any>({
@@ -110,17 +112,25 @@ export default function ServicesManager() {
     }
   };
 
-  const handleDeleteService = async (id: string) => {
-    if (confirm('Delete this service? This will also delete all sub-services.')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/services/${id}`);
-        showToast('Service deleted successfully!');
-        fetchServices();
-      } catch (error) {
-        showToast('Error deleting service');
-      }
-    }
-  };
+  const handleDeleteService = (id: string) => {
+  setDeleteId(id); // open modal
+};
+const confirmDelete = async () => {
+  if (!deleteId) return;
+
+  setDeleting(true);
+  try {
+    await axios.delete(`${API_BASE_URL}/api/services/${deleteId}`);
+    showToast('Service deleted successfully!');
+    fetchServices();
+  } catch (error) {
+    showToast('Error deleting service');
+  } finally {
+    setDeleting(false);
+    setDeleteId(null);
+  }
+};
+
 
   const handleAddService = () => {
     const newService = {
@@ -580,6 +590,41 @@ export default function ServicesManager() {
           {toast}
         </div>
       )}
+      {deleteId && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+    <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] p-6 rounded-xl shadow-2xl border border-[rgba(136,136,136,0.25)] w-full max-w-md animate-scale-in">
+      
+      <h3 className="text-lg font-bold text-white mb-3">
+        Delete Service?
+      </h3>
+
+      <p className="text-sm text-[#888888] mb-6">
+        This will permanently delete this service and all its sub-services.
+        This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setDeleteId(null)}
+          disabled={deleting}
+          className="px-4 py-2 rounded-lg bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          disabled={deleting}
+          className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition shadow-lg flex items-center gap-2"
+        >
+          {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
+          {deleting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
