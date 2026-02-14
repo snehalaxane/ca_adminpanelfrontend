@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import logo from "../assets/logo.png";
+
 import {
   LayoutDashboard,
   Home,
@@ -68,11 +70,14 @@ export default function Sidebar({ currentPage, onNavigate, onLogout }: SidebarPr
   return (
     <div className="w-64 bg-gradient-to-b from-[#16181D] via-[#16181D] to-[#0F1115] text-white flex flex-col border-r border-[rgba(136,136,136,0.25)] shadow-xl">
       <div className="p-6 border-b border-[rgba(136,136,136,0.25)] bg-gradient-to-r from-[#16181D] to-[#1a1d24] flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-[#E6E6E6] animate-fade-in">R&P CMS</h1>
-          <p className="text-sm text-[#888888] mt-1 animate-fade-in-delay">Admin Panel</p>
-        </div>
-        {/* <ThemeToggle /> */}
+       <div className="flex items-center gap-3">
+  <img
+    src={logo}
+    alt="R&P Logo"
+    className="h-10 w-auto object-contain"
+  />
+</div>
+
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4">
