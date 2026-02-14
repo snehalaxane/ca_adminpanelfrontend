@@ -26,6 +26,9 @@ export default function AlumniManager() {
   const [editingAlumni, setEditingAlumni] = useState<Alumni | null>(null);
   const [toast, setToast] = useState('');
   const [uploadingFile, setUploadingFile] = useState<File | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+const [deleting, setDeleting] = useState(false);
+
 
   const [formData, setFormData] = useState({
     name: '',
@@ -146,18 +149,26 @@ export default function AlumniManager() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this alumni?')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/alumni/${id}`);
-        setToast('Alumni deleted successfully!');
-        fetchAlumni();
-      } catch (err) {
-        setToast('Error deleting alumni');
-      }
-      setTimeout(() => setToast(''), 3000);
-    }
-  };
+  const handleDelete = (id: string) => {
+  setDeleteId(id);
+};
+const confirmDelete = async () => {
+  if (!deleteId) return;
+
+  try {
+    setDeleting(true);
+    await axios.delete(`${API_BASE_URL}/api/alumni/${deleteId}`);
+    setToast('Alumni deleted successfully!');
+    fetchAlumni();
+  } catch (err) {
+    setToast('Error deleting alumni');
+  } finally {
+    setDeleting(false);
+    setDeleteId(null);
+    setTimeout(() => setToast(''), 3000);
+  }
+};
+
 
   return (
     <div className="p-8 bg-gradient-to-br from-[#0F1115] via-[#0F1115] to-[#16181D] min-h-screen">
@@ -530,6 +541,40 @@ export default function AlumniManager() {
           </div>
         </div>
       )}
+      {deleteId && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
+
+      <h3 className="text-base font-semibold text-white mb-2">
+        Delete this alumni?
+      </h3>
+
+      <p className="text-sm text-[#888888] mb-5">
+        This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setDeleteId(null)}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition"
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

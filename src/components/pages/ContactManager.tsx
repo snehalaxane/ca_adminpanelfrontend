@@ -62,6 +62,12 @@ export default function ContactManager() {
   const [toast, setToast] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  const [deleteConfig, setDeleteConfig] = useState<{
+  type: 'office' | 'field' | null;
+  id: any;
+} | null>(null);
+
+
   useEffect(() => {
     // fetch contact form settings from backend
     const fetchContactForm = async () => {
@@ -264,12 +270,9 @@ export default function ContactManager() {
   };
 
   const handleDeleteOffice = (id: number) => {
-    if (confirm('Are you sure you want to delete this office location?')) {
-      setOffices(offices.filter(office => office.id !== id));
-      setToast('Office location deleted!');
-      setTimeout(() => setToast(''), 3000);
-    }
-  };
+  setDeleteConfig({ type: 'office', id });
+};
+
 
   const handleAddOffice = () => {
     const newOffice = {
@@ -317,14 +320,27 @@ export default function ContactManager() {
     setHasUnsavedChanges(true);
   };
 
-  const handleDeleteField = (id: any) => {
-    if (confirm('Are you sure you want to delete this field?')) {
-      setFormFields(formFields.filter(f => f.id !== id));
-      setHasUnsavedChanges(true);
-      setToast('Field deleted!');
-      setTimeout(() => setToast(''), 3000);
-    }
-  };
+ const handleDeleteField = (id: any) => {
+  setDeleteConfig({ type: 'field', id });
+};
+const confirmDelete = () => {
+  if (!deleteConfig) return;
+
+  if (deleteConfig.type === 'office') {
+    setOffices(offices.filter(o => o.id !== deleteConfig.id));
+    setToast('Office location deleted!');
+  }
+
+  if (deleteConfig.type === 'field') {
+    setFormFields(formFields.filter(f => f.id !== deleteConfig.id));
+    setHasUnsavedChanges(true);
+    setToast('Field deleted!');
+  }
+
+  setDeleteConfig(null);
+  setTimeout(() => setToast(''), 3000);
+};
+
 
   const toggleOfficeEnabled = (id: any) => {
     setOffices(offices.map(o => o.id === id ? { ...o, enabled: !o.enabled } : o));
@@ -881,6 +897,40 @@ export default function ContactManager() {
           {toast}
         </div>
       )}
+      {deleteConfig && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
+
+      <h3 className="text-base font-semibold text-white mb-2">
+        {deleteConfig.type === 'office'
+          ? 'Delete this office location?'
+          : 'Delete this form field?'}
+      </h3>
+
+      <p className="text-sm text-[#888888] mb-5">
+        This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setDeleteConfig(null)}
+          className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition"
+        >
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

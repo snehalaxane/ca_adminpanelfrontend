@@ -23,6 +23,9 @@ export default function LegalPagesManager() {
   const [showSEOPanel, setShowSEOPanel] = useState(true);
   const [toast, setToast] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
     fetchPages();
@@ -101,22 +104,33 @@ export default function LegalPagesManager() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const handleDeletePage = async (id: string) => {
-    if (confirm('Are you sure you want to delete this legal page?')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/legal/${id}`);
-        const updatedList = legalPages.filter(p => p._id !== id);
-        setLegalPages(updatedList);
-        if (selectedPageId === id) {
-          setSelectedPageId(updatedList.length > 0 ? updatedList[0]._id! : null);
-        }
-        setToast('Page deleted!');
-      } catch (err) {
-        setToast('Error deleting page');
-      }
-      setTimeout(() => setToast(''), 3000);
+  const handleDeletePage = (id: string) => {
+  setDeleteId(id);
+};
+const confirmDelete = async () => {
+  if (!deleteId) return;
+
+  try {
+    setDeleting(true);
+    await axios.delete(`${API_BASE_URL}/api/legal/${deleteId}`);
+
+    const updatedList = legalPages.filter(p => p._id !== deleteId);
+    setLegalPages(updatedList);
+
+    if (selectedPageId === deleteId) {
+      setSelectedPageId(updatedList.length > 0 ? updatedList[0]._id! : null);
     }
-  };
+
+    setToast('Page deleted!');
+  } catch (err) {
+    setToast('Error deleting page');
+  } finally {
+    setDeleting(false);
+    setDeleteId(null);
+    setTimeout(() => setToast(''), 3000);
+  }
+};
+
 
   const updateSelectedPage = (updates: Partial<LegalPage>) => {
     if (selectedPageId) {
@@ -448,6 +462,40 @@ export default function LegalPagesManager() {
           {toast}
         </div>
       )}
+      {deleteId && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
+
+      <h3 className="text-base font-semibold text-white mb-2">
+        Delete this legal page?
+      </h3>
+
+      <p className="text-sm text-[#888888] mb-5">
+        This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setDeleteId(null)}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition"
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

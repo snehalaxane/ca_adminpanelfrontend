@@ -10,6 +10,9 @@ export default function SelectClientsManager() {
   const [expandedSector, setExpandedSector] = useState<string | null>(null);
   const [toast, setToast] = useState('');
   const [editingSectorId, setEditingSectorId] = useState<string | null>(null);
+  const [deleteSectorId, setDeleteSectorId] = useState<string | null>(null);
+const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
     fetchSectors();
@@ -61,16 +64,25 @@ export default function SelectClientsManager() {
     }
   };
 
-  const handleDeleteSector = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this sector? All industries within will be lost.')) return;
-    try {
-      await axios.delete(`${API_BASE_URL}/api/sectors/${id}`);
-      setSectors(sectors.filter(s => s._id !== id));
-      showToast('Sector deleted');
-    } catch (error) {
-      showToast('Error deleting sector');
-    }
-  };
+  const handleDeleteSector = (id: string) => {
+  setDeleteSectorId(id);
+};
+const confirmDeleteSector = async () => {
+  if (!deleteSectorId) return;
+
+  try {
+    setDeleting(true);
+    await axios.delete(`${API_BASE_URL}/api/sectors/${deleteSectorId}`);
+    setSectors(sectors.filter(s => s._id !== deleteSectorId));
+    showToast('Sector deleted');
+  } catch (error) {
+    showToast('Error deleting sector');
+  } finally {
+    setDeleting(false);
+    setDeleteSectorId(null);
+  }
+};
+
 
   const handleAddIndustry = async (sector: any) => {
     const updatedIndustries = [...sector.industries, { name: 'New Industry', enabled: true }];
@@ -310,6 +322,41 @@ export default function SelectClientsManager() {
           {toast}
         </div>
       )}
+      {deleteSectorId && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
+
+      <h3 className="text-base font-semibold text-white mb-2">
+        Delete this sector?
+      </h3>
+
+      <p className="text-sm text-[#888888] mb-5">
+        All industries inside this sector will be permanently removed.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setDeleteSectorId(null)}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDeleteSector}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition flex items-center gap-2"
+        >
+          {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

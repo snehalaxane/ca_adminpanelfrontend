@@ -22,6 +22,11 @@ export default function SEOManager() {
   const [editingPageName, setEditingPageName] = useState<string | null>('Home');
   const [toast, setToast] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+const [newPageName, setNewPageName] = useState('');
+const [deletePageName, setDeletePageName] = useState<string | null>(null);
+const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
     fetchSEOConfigs();
@@ -57,49 +62,70 @@ export default function SEOManager() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const handleAddPage = async () => {
-    const pageName = prompt('Enter page name (e.g., Portfolio):');
-    if (!pageName) return;
+  const handleAddPage = () => {
+  setShowAddModal(true);
+};
+const confirmAddPage = async () => {
+  if (!newPageName.trim()) return;
 
-    const newPage: PageSEO = {
-      pageName,
-      urlSlug: `/${pageName.toLowerCase().replace(/\s+/g, '-')}`,
-      metaTitle: `${pageName} - Raju & Prasad`,
-      metaDescription: '',
-      keywords: '',
-      // ogImage: '',
-      indexPage: true,
-      followLinks: true,
-      includeInSitemap: true
-    };
+  const pageName = newPageName.trim();
 
-    try {
-      const response = await axios.put(`${API_BASE_URL}/api/seo/${pageName}`, newPage);
-      setPages([...pages, response.data]);
-      setEditingPageName(pageName);
-      setToast('New SEO page added!');
-    } catch (err) {
-      setToast('Error adding SEO page');
-    }
+  const newPage: PageSEO = {
+    pageName,
+    urlSlug: `/${pageName.toLowerCase().replace(/\s+/g, '-')}`,
+    metaTitle: `${pageName} - Raju & Prasad`,
+    metaDescription: '',
+    keywords: '',
+    indexPage: true,
+    followLinks: true,
+    includeInSitemap: true
   };
 
-  const handleDeletePage = async (pageName: string) => {
-    if (['Home', 'About', 'Services', 'Contact'].includes(pageName)) {
-      alert('Default pages cannot be deleted.');
-      return;
-    }
+  try {
+    const response = await axios.put(`${API_BASE_URL}/api/seo/${pageName}`, newPage);
+    setPages([...pages, response.data]);
+    setEditingPageName(pageName);
+    setToast('New SEO page added!');
+  } catch (err) {
+    setToast('Error adding SEO page');
+  }
 
-    if (confirm(`Are you sure you want to delete SEO settings for "${pageName}"?`)) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/seo/${pageName}`);
-        setPages(pages.filter(p => p.pageName !== pageName));
-        setEditingPageName('Home');
-        setToast('SEO page deleted!');
-      } catch (err) {
-        setToast('Error deleting SEO page');
-      }
-    }
-  };
+  setShowAddModal(false);
+  setNewPageName('');
+  setTimeout(() => setToast(''), 3000);
+};
+
+
+ const handleDeletePage = (pageName: string) => {
+  if (['Home', 'About', 'Services', 'Contact'].includes(pageName)) {
+    setToast('Default pages cannot be deleted.');
+    setTimeout(() => setToast(''), 3000);
+    return;
+  }
+
+  setDeletePageName(pageName);
+};
+
+
+
+
+  const confirmDeletePage = async () => {
+  if (!deletePageName) return;
+
+  try {
+    setDeleting(true);
+    await axios.delete(`${API_BASE_URL}/api/seo/${deletePageName}`);
+    setPages(pages.filter(p => p.pageName !== deletePageName));
+    setEditingPageName('Home');
+    setToast('SEO page deleted!');
+  } catch (err) {
+    setToast('Error deleting SEO page');
+  } finally {
+    setDeleting(false);
+    setDeletePageName(null);
+    setTimeout(() => setToast(''), 3000);
+  }
+};
 
   const updateCurrentPage = (updates: Partial<PageSEO>) => {
     if (!editingPageName) return;
@@ -387,6 +413,76 @@ export default function SEOManager() {
           {toast}
         </div>
       )}
+      {showAddModal && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-[#022683]/30 shadow-2xl rounded-lg p-6 w-96 pointer-events-auto">
+
+      <h3 className="text-base font-semibold text-white mb-4">
+        Add New SEO Page
+      </h3>
+
+      <input
+        type="text"
+        value={newPageName}
+        onChange={(e) => setNewPageName(e.target.value)}
+        placeholder="Enter page name (e.g., Portfolio)"
+        className="w-full px-4 py-2 mb-5 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] outline-none text-[#E6E6E6]"
+      />
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowAddModal(false)}
+          className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmAddPage}
+          className="px-4 py-2 text-sm rounded bg-[#022683] text-white hover:bg-[#033aa0] transition"
+        >
+          Add
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+{deletePageName && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 pointer-events-auto">
+
+      <h3 className="text-base font-semibold text-white mb-2">
+        Delete SEO page "{deletePageName}"?
+      </h3>
+
+      <p className="text-sm text-[#888888] mb-5">
+        This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setDeletePageName(null)}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDeletePage}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition"
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }

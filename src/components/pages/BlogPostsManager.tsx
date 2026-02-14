@@ -25,6 +25,9 @@ export default function BlogPostsManager() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [toast, setToast] = useState('');
   const [uploadingFile, setUploadingFile] = useState<File | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+const [deleting, setDeleting] = useState(false);
+
 
   const [formData, setFormData] = useState({
     title: '',
@@ -132,18 +135,26 @@ export default function BlogPostsManager() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this blog post?')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/blogs/${id}`);
-        setPosts(posts.filter(p => p._id !== id));
-        setToast('Blog post deleted successfully!');
-      } catch (err) {
-        setToast('Error deleting blog post');
-      }
-      setTimeout(() => setToast(''), 3000);
-    }
-  };
+  const handleDelete = (id: string) => {
+  setDeleteId(id);
+};
+const confirmDelete = async () => {
+  if (!deleteId) return;
+
+  try {
+    setDeleting(true);
+    await axios.delete(`${API_BASE_URL}/api/blogs/${deleteId}`);
+    setPosts(posts.filter(p => p._id !== deleteId));
+    setToast('Blog post deleted successfully!');
+  } catch (err) {
+    setToast('Error deleting blog post');
+  } finally {
+    setDeleting(false);
+    setDeleteId(null);
+    setTimeout(() => setToast(''), 3000);
+  }
+};
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -581,6 +592,40 @@ export default function BlogPostsManager() {
           </div>
         </div>
       )}
+      {deleteId && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
+
+      <h3 className="text-base font-semibold text-white mb-2">
+        Delete this blog post?
+      </h3>
+
+      <p className="text-sm text-[#888888] mb-5">
+        This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setDeleteId(null)}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          disabled={deleting}
+          className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition"
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
