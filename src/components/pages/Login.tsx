@@ -21,6 +21,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     setLoading(true);
 
     try {
+      console.log("📤 Sending login request to:", `${API_BASE_URL}/api/admin/login`);
+      
       const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: {
@@ -30,27 +32,41 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       });
 
       const data = await response.json();
+      console.log("📥 Login response:", data);
 
       if (!response.ok) {
+        console.error("❌ Login failed with status:", response.status);
         setError(data.message || 'Login failed');
         setLoading(false);
         return;
       }
 
+      if (!data.token) {
+        console.error("❌ No token in response!");
+        setError('No token received from server');
+        setLoading(false);
+        return;
+      }
+
       // Store token in localStorage
+      console.log("💾 Saving token to localStorage...");
       localStorage.setItem('admin_token', data.token);
-      console.log("✅ Token stored, admin:", data.email);
+      
+      const savedToken = localStorage.getItem('admin_token');
+      console.log("✅ Token saved. Verification:", savedToken ? "✓ Found in localStorage" : "✗ NOT in localStorage");
+      console.log("✅ Admin logged in:", data.email);
       
       setSuccess('✅ Login successful! Redirecting...');
       setEmail('');
       setPassword('');
 
       setTimeout(() => {
+        console.log("🔄 Redirecting to dashboard...");
         window.location.href = '/';
-      }, 1000);
+      }, 500);
     } catch (err) {
+      console.error('❌ Login error:', err);
       setError('Error connecting to server');
-      console.error('Login error:', err);
       setLoading(false);
     }
   };

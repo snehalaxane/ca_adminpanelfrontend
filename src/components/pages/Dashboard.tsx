@@ -65,14 +65,17 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
     setError(null);
     try {
       const token = localStorage.getItem('admin_token');
+      console.log("🔍 Dashboard loading, token from localStorage:", token ? `✓ ${token.substring(0, 20)}...` : "✗ NO TOKEN");
       
       if (!token) {
+        console.warn("❌ No token found in localStorage");
         setError('Not authenticated. Please login.');
         setLoading(false);
         return;
       }
 
       // Fetch admin data
+      console.log("📤 Fetching /api/admin/me with token...");
       const adminRes = await fetch(`${API_BASE_URL}/api/admin/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -91,16 +94,16 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
         return;
       }
 
-      console.log("✅ ADMIN RESPONSE:", { status: adminRes.status, data: adminData });
+      console.log("✅ ADMIN RESPONSE:", { status: adminRes.status, authenticated: adminData.authenticated, email: adminData.email });
 
       if (adminRes.ok && adminData.authenticated) {
         setAdmin({
           email: adminData.email,
           lastLogin: adminData.lastLogin
         });
-        console.log("✅ Admin set successfully:", adminData.email);
+        console.log("✅ Admin profile loaded:", adminData.email);
       } else {
-        console.warn("❌ Not authenticated or fetch failed");
+        console.warn("❌ Authentication failed. Status:", adminRes.status, "Data:", adminData);
       }
 
       // Fetch all stats in parallel
