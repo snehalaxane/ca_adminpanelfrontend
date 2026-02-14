@@ -591,8 +591,9 @@ const confirmDelete = async () => {
         </div>
       )}
     {deleteId && (
-  <div className="fixed top-24 right-8 z-50 animate-fade-in">
-    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-4 w-80">
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-5 w-80 animate-fade-in pointer-events-auto">
       
       <h3 className="text-sm font-semibold text-white mb-2">
         Delete this service?
@@ -605,21 +606,23 @@ const confirmDelete = async () => {
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setDeleteId(null)}
-          className="px-3 py-1 text-xs rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)]"
+          className="px-3 py-1.5 text-xs rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
         >
           Cancel
         </button>
 
         <button
           onClick={confirmDelete}
-          className="px-3 py-1 text-xs rounded bg-red-500 text-white hover:bg-red-600"
+          className="px-3 py-1.5 text-xs rounded bg-red-500 text-white hover:bg-red-600 transition"
         >
           Delete
         </button>
       </div>
+
     </div>
   </div>
 )}
+
 
 
 
