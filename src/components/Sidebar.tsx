@@ -74,7 +74,7 @@ export default function Sidebar({ currentPage, onNavigate, onLogout }: SidebarPr
   <img
     src={logo}
     alt="R&P Logo"
-    className="h-10 w-auto invert contrast-200"
+     className="h-12 w-auto invert brightness-200"
 
   />
 </div>
