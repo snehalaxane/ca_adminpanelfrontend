@@ -26,7 +26,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({ email, password })
       });
 
@@ -34,20 +33,24 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
       if (!response.ok) {
         setError(data.message || 'Login failed');
+        setLoading(false);
         return;
       }
 
+      // Store token in localStorage
+      localStorage.setItem('admin_token', data.token);
+      console.log("✅ Token stored, admin:", data.email);
+      
       setSuccess('✅ Login successful! Redirecting...');
       setEmail('');
       setPassword('');
 
       setTimeout(() => {
         window.location.href = '/';
-      }, 1500);
+      }, 1000);
     } catch (err) {
       setError('Error connecting to server');
       console.error('Login error:', err);
-    } finally {
       setLoading(false);
     }
   };

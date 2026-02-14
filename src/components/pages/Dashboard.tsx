@@ -64,9 +64,19 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
     setLoading(true);
     setError(null);
     try {
+      const token = localStorage.getItem('admin_token');
+      
+      if (!token) {
+        setError('Not authenticated. Please login.');
+        setLoading(false);
+        return;
+      }
+
       // Fetch admin data
       const adminRes = await fetch(`${API_BASE_URL}/api/admin/me`, {
-        credentials: "include",
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       let adminData;
@@ -95,12 +105,12 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
 
       // Fetch all stats in parallel
       const [teamRes, blogRes, galleryRes, mapRes, jobRes, settingsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/team-members`, { credentials: "include" }),
-        fetch(`${API_BASE_URL}/api/blogs`, { credentials: "include" }),
-        fetch(`${API_BASE_URL}/api/gallery`, { credentials: "include" }),
-        fetch(`${API_BASE_URL}/api/map-locations`, { credentials: "include" }),
-        fetch(`${API_BASE_URL}/api/job-openings`, { credentials: "include" }),
-        fetch(`${API_BASE_URL}/api/settings/general`, { credentials: "include" })
+        fetch(`${API_BASE_URL}/api/team-members`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/blogs`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/gallery`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/map-locations`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/job-openings`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/settings/general`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
 
       let teamCount = 0;
