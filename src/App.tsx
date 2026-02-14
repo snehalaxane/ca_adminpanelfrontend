@@ -9,39 +9,48 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/admin/me`, {
-          credentials: "include",
-        });
+  const checkAuth = async () => {
+    const token = localStorage.getItem("token");
 
-        if (res.ok) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (err) {
+    if (!token) {
+      setIsAuthenticated(false);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        setIsAuthenticated(true);
+      } else {
         setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
+        localStorage.removeItem("token");
       }
-    };
+    } catch (err) {
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    checkAuth();
-  }, []);
+  checkAuth();
+}, []);
+
 
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
 
   const handleLogout = async () => {
-    await fetch(`${API_BASE_URL}/api/admin/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+  localStorage.removeItem("token");
+  setIsAuthenticated(false);
+};
 
-    setIsAuthenticated(false);
-  };
 
   if (loading) {
     return <div>Loading...</div>; // or spinner

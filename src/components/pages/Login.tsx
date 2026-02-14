@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, Mail, Loader } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -13,6 +14,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const navigate = useNavigate();
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +63,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
         console.log("✅ localStorage.setItem completed");
         
-        const savedToken = localStorage.getItem('admin_token');
+        const savedToken = localStorage.getItem('token');
         console.log("✅ Verification - Token in localStorage?", Boolean(savedToken), "Length:", savedToken?.length);
         
         if (!savedToken) {
@@ -79,10 +83,11 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       setPassword('');
 
       // Wait to ensure token is saved, then redirect with token as fallback
-      await new Promise(r => setTimeout(r, 500));
-      
+    setTimeout(() => {
+  navigate("/dashboard");
+}, 500);
+
       // Redirect and let the page initialization save the token
-      window.location.href = `/?token=${encodeURIComponent(data.token)}`;
     } catch (err) {
       console.error('❌ Login error:', err);
       setError(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
