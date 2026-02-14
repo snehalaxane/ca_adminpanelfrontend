@@ -590,7 +590,7 @@ const confirmDelete = async () => {
           {toast}
         </div>
       )}
-     {deleteId && (
+    {deleteId && (
   <div className="fixed top-24 right-8 z-50 animate-fade-in">
     <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-4 w-80">
       
@@ -620,6 +620,7 @@ const confirmDelete = async () => {
     </div>
   </div>
 )}
+
 
 
     </div>
