@@ -36,8 +36,9 @@ export default function HomePageManager() {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      credentials: "include",
+      
       body: JSON.stringify(heroData),
     });
 
@@ -53,7 +54,9 @@ export default function HomePageManager() {
 
 useEffect(() => {
   fetch(`${API_BASE_URL}/api/about`, {
-    credentials: "include",
+      headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
   })
     .then(res => res.json())
     .then(data => {
@@ -81,7 +84,10 @@ useEffect(() => {
   const fetchHero = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/hero`, {
-        credentials: "include",
+         headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+        
       });
 
       if (!res.ok) return;
@@ -113,8 +119,10 @@ const handleSave = async () => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      credentials: "include",
+    
+      
       body: JSON.stringify(aboutData),
     });
 
