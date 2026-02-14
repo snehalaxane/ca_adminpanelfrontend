@@ -65,17 +65,21 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
     setError(null);
     try {
       // Fetch admin data
-       
       const adminRes = await fetch(`${API_BASE_URL}/api/admin/me`, {
         credentials: "include",
       });
 
-      if (adminRes.ok) {
-        const adminData = await adminRes.json();
-        // console.log("ADMIN /me RESPONSE 👉", adminData);
-        if (adminData.authenticated) {
-          setAdmin(adminData);
-        }
+      const adminData = await adminRes.json();
+      console.log("✅ ADMIN RESPONSE:", { status: adminRes.status, data: adminData });
+
+      if (adminRes.ok && adminData.authenticated) {
+        setAdmin({
+          email: adminData.email,
+          lastLogin: adminData.lastLogin
+        });
+        console.log("✅ Admin set successfully:", adminData.email);
+      } else {
+        console.warn("❌ Not authenticated or fetch failed");
       }
 
       // Fetch all stats in parallel
@@ -313,7 +317,7 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
           <div>
             <h3 className="font-bold text-lg text-[#E6E6E6]">Admin Profile</h3>
             <p className="text-[#888888]">
-              {admin?.email || "Loading..."}
+              {loading ? "Loading..." : admin?.email || "Not logged in"}
             </p>
             <p className="text-sm text-[#888888] mt-1">
               Last login:{" "}
