@@ -69,7 +69,18 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
         credentials: "include",
       });
 
-      const adminData = await adminRes.json();
+      let adminData;
+      try {
+        adminData = await adminRes.json();
+      } catch (jsonError) {
+        console.error("❌ Failed to parse JSON:", adminRes.status, adminRes.statusText);
+        const text = await adminRes.text();
+        console.error("Response body:", text.substring(0, 200));
+        setError(`Server error: ${adminRes.status}`);
+        setLoading(false);
+        return;
+      }
+
       console.log("✅ ADMIN RESPONSE:", { status: adminRes.status, data: adminData });
 
       if (adminRes.ok && adminData.authenticated) {
