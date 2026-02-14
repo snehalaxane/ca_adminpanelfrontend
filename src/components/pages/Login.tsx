@@ -55,7 +55,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       // Store token in localStorage
       try {
         console.log("💾 Attempting to save token to localStorage...");
-        localStorage.setItem('admin_token', data.token);
+       localStorage.setItem('token', data.token);
+
         console.log("✅ localStorage.setItem completed");
         
         const savedToken = localStorage.getItem('admin_token');

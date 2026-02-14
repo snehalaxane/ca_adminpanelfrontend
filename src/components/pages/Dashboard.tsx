@@ -70,11 +70,11 @@ export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) 
       
       if (token) {
         console.log("✅ Token found in URL, saving to localStorage");
-        localStorage.setItem('admin_token', token);
+        localStorage.setItem('token', token);
         // Remove token from URL
         window.history.replaceState({}, document.title, window.location.pathname);
       } else {
-        token = localStorage.getItem('admin_token');
+        token = localStorage.getItem('token');
       }
       
       console.log("🔍 Dashboard loading, token from localStorage:", token ? `✓ ${token.substring(0, 20)}...` : "✗ NO TOKEN");
