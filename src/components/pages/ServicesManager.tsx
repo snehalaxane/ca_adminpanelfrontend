@@ -590,40 +590,37 @@ const confirmDelete = async () => {
           {toast}
         </div>
       )}
-      {deleteId && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-    <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] p-6 rounded-xl shadow-2xl border border-[rgba(136,136,136,0.25)] w-full max-w-md animate-scale-in">
+     {deleteId && (
+  <div className="fixed top-24 right-8 z-50 animate-fade-in">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-4 w-80">
       
-      <h3 className="text-lg font-bold text-white mb-3">
-        Delete Service?
+      <h3 className="text-sm font-semibold text-white mb-2">
+        Delete this service?
       </h3>
 
-      <p className="text-sm text-[#888888] mb-6">
-        This will permanently delete this service and all its sub-services.
-        This action cannot be undone.
+      <p className="text-xs text-[#888888] mb-4">
+        This will also delete all sub-services.
       </p>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-2">
         <button
           onClick={() => setDeleteId(null)}
-          disabled={deleting}
-          className="px-4 py-2 rounded-lg bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+          className="px-3 py-1 text-xs rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)]"
         >
           Cancel
         </button>
 
         <button
           onClick={confirmDelete}
-          disabled={deleting}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 transition shadow-lg flex items-center gap-2"
+          className="px-3 py-1 text-xs rounded bg-red-500 text-white hover:bg-red-600"
         >
-          {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
-          {deleting ? "Deleting..." : "Delete"}
+          Delete
         </button>
       </div>
     </div>
   </div>
 )}
+
 
     </div>
   );
