@@ -21,7 +21,7 @@ const [loading, setLoading] = useState(false);
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
  console.log("API BASE URL =", API_BASE_URL);
 
- const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setError("");
   setLoading(true);
@@ -32,25 +32,27 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       headers: {
         "Content-Type": "application/json",
       },
-        credentials: "include",
       body: JSON.stringify({ email, password }),
     });
 
-    let data: { message?: string; success?: boolean } = {};
-
-    try {
-      data = await 
-      res.json();
-    } catch {}
+    const data = await res.json();
 
     if (!res.ok) {
       setError(data.message || "Invalid credentials");
       return;
     }
 
-    // ✅ SUCCESS
+    if (!data.token) {
+      setError("Token not received from server");
+      return;
+    }
+
+    // ✅ SAVE TOKEN
+    localStorage.setItem("token", data.token);
+
+    // ✅ Tell App user logged in
     onLogin();
-    localStorage.setItem("adminAuth", "true");
+
   } catch (err) {
     console.error("NETWORK ERROR:", err);
     setError("Unable to connect to server");
@@ -58,6 +60,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     setLoading(false);
   }
 };
+
 
 
 
