@@ -22,6 +22,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
     try {
       console.log("📤 Sending login request to:", `${API_BASE_URL}/api/admin/login`);
+      console.log("API_BASE_URL value:", API_BASE_URL);
       
       const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: 'POST',
@@ -31,8 +32,11 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         body: JSON.stringify({ email, password })
       });
 
+      console.log("📥 Response status:", response.status);
+      
       const data = await response.json();
-      console.log("📥 Login response:", data);
+      console.log("📥 Full response data:", data);
+      console.log("📥 Token in response?", Boolean(data.token), "Value:", data.token?.substring(0, 20));
 
       if (!response.ok) {
         console.error("❌ Login failed with status:", response.status);
@@ -42,31 +46,45 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       }
 
       if (!data.token) {
-        console.error("❌ No token in response!");
+        console.error("❌ No token in response! Response was:", JSON.stringify(data));
         setError('No token received from server');
         setLoading(false);
         return;
       }
 
       // Store token in localStorage
-      console.log("💾 Saving token to localStorage...");
-      localStorage.setItem('admin_token', data.token);
-      
-      const savedToken = localStorage.getItem('admin_token');
-      console.log("✅ Token saved. Verification:", savedToken ? "✓ Found in localStorage" : "✗ NOT in localStorage");
+      try {
+        console.log("💾 Attempting to save token to localStorage...");
+        localStorage.setItem('admin_token', data.token);
+        console.log("✅ localStorage.setItem completed");
+        
+        const savedToken = localStorage.getItem('admin_token');
+        console.log("✅ Verification - Token in localStorage?", Boolean(savedToken), "Length:", savedToken?.length);
+        
+        if (!savedToken) {
+          throw new Error("Token was not saved to localStorage");
+        }
+      } catch (storageError) {
+        console.error("❌ localStorage error:", storageError);
+        setError('Failed to save login token');
+        setLoading(false);
+        return;
+      }
+
       console.log("✅ Admin logged in:", data.email);
       
       setSuccess('✅ Login successful! Redirecting...');
       setEmail('');
       setPassword('');
 
+      // Use a longer delay to ensure localStorage persists
       setTimeout(() => {
         console.log("🔄 Redirecting to dashboard...");
         window.location.href = '/';
-      }, 500);
+      }, 1000);
     } catch (err) {
       console.error('❌ Login error:', err);
-      setError('Error connecting to server');
+      setError(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setLoading(false);
     }
   };
