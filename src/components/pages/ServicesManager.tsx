@@ -593,7 +593,7 @@ const confirmDelete = async () => {
     {deleteId && (
   <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
     
-    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-5 w-96 animate-fade-in pointer-events-auto">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
       
       <h3 className="text-sm font-semibold text-white mb-2">
         Delete this service?
