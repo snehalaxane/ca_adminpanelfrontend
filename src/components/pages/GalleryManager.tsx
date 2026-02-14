@@ -37,7 +37,7 @@ export default function GalleryManager() {
 
   const fetchImages = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/gallery`);
+      const response = await axios.get(`${API_BASE_URL}/api/gallery`);
       setImages(response.data);
     } catch (err) {
       console.error('Error fetching gallery:', err);
@@ -73,7 +73,7 @@ export default function GalleryManager() {
     }
 
     try {
-      await axios.post(`${API_BASE_URL}/gallery`, data);
+      await axios.post(`${API_BASE_URL}/api/gallery`, data);
       setToast('Image uploaded successfully!');
       fetchImages();
       setShowUploadModal(false);
@@ -104,7 +104,7 @@ export default function GalleryManager() {
 
   const handleUpdateImage = async (id: string, updates: Partial<GalleryImage>) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/gallery/${id}`, updates);
+      const response = await axios.put(`${API_BASE_URL}/api/gallery/${id}`, updates);
       setImages(images.map(img => img._id === id ? response.data : img));
     } catch (err) {
       setToast('Error updating image');
@@ -115,7 +115,7 @@ export default function GalleryManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this image?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/gallery/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/gallery/${id}`);
         setImages(images.filter(img => img._id !== id));
         setToast('Image deleted successfully!');
       } catch (err) {

@@ -31,7 +31,7 @@ export default function HistoryManager() {
 
   const fetchJourney = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/history-journey`);
+      const res = await axios.get(`${API_BASE_URL}/api/history-journey`);
       if (res.data) setJourneyData(res.data);
     } catch (err) {
       console.error("Error fetching journey details:", err);
@@ -40,7 +40,7 @@ export default function HistoryManager() {
 
   const fetchTimeline = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/history-timeline`);
+      const res = await axios.get(`${API_BASE_URL}/api/history-timeline`);
       setTimeline(res.data);
     } catch (err) {
       console.error("Error fetching timeline:", err);
@@ -49,7 +49,7 @@ export default function HistoryManager() {
 
   const fetchMission = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/history-mission`);
+      const res = await axios.get(`${API_BASE_URL}/api/history-mission`);
       if (res.data) setMission(res.data);
     } catch (err) {
       console.error("Error fetching mission:", err);
@@ -58,7 +58,7 @@ export default function HistoryManager() {
 
   const handleSaveJourney = async () => {
     try {
-      await axios.put(`${API_BASE_URL}/history-journey`, journeyData);
+      await axios.put(`${API_BASE_URL}/api/history-journey`, journeyData);
       setToast('Journey details saved successfully!');
       setTimeout(() => setToast(''), 3000);
     } catch (err) {
@@ -87,7 +87,7 @@ export default function HistoryManager() {
 
   const handleSaveMission = async () => {
     try {
-      await axios.put(`${API_BASE_URL}/history-mission`, mission);
+      await axios.put(`${API_BASE_URL}/api/history-mission`, mission);
       setToast('Mission statement saved successfully!');
       setTimeout(() => setToast(''), 3000);
     } catch (err) {
@@ -104,7 +104,7 @@ export default function HistoryManager() {
       order: timeline.length > 0 ? Math.max(...timeline.map(t => t.order || 0)) + 1 : 0
     };
     try {
-      const res = await axios.post(`${API_BASE_URL}/history-timeline`, newEvent);
+      const res = await axios.post(`${API_BASE_URL}/api/history-timeline`, newEvent);
       setTimeline([...timeline, res.data]);
     } catch (err) {
       setToast('Error adding event');
@@ -113,7 +113,7 @@ export default function HistoryManager() {
 
   const handleDeleteTimelineEvent = async (id: string) => {
     try {
-      await axios.delete(`${API_BASE_URL}/history-timeline/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/history-timeline/${id}`);
       setTimeline(timeline.filter(t => t._id !== id));
     } catch (err) {
       setToast('Error deleting event');
@@ -128,7 +128,7 @@ export default function HistoryManager() {
     setTimeline(timeline.map(t => t._id === id ? newItem : t));
 
     try {
-      await axios.put(`${API_BASE_URL}/history-timeline/${id}`, newItem);
+      await axios.put(`${API_BASE_URL}/api/history-timeline/${id}`, newItem);
     } catch (err) {
       console.error("Error updating timeline event:", err);
     }

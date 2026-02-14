@@ -30,7 +30,7 @@ export default function SEOManager() {
   const fetchSEOConfigs = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/seo`);
+      const response = await axios.get(`${API_BASE_URL}/api/seo`);
       setPages(response.data);
       if (response.data.length > 0 && !editingPageName) {
         setEditingPageName(response.data[0].pageName);
@@ -48,7 +48,7 @@ export default function SEOManager() {
   const handleSave = async () => {
     if (!currentPage) return;
     try {
-      await axios.put(`${API_BASE_URL}/seo/${currentPage.pageName}`, currentPage);
+      await axios.put(`${API_BASE_URL}/api/seo/${currentPage.pageName}`, currentPage);
       setToast('SEO settings saved successfully!');
     } catch (err) {
       console.error('Error saving SEO config:', err);
@@ -74,7 +74,7 @@ export default function SEOManager() {
     };
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/seo/${pageName}`, newPage);
+      const response = await axios.put(`${API_BASE_URL}/api/seo/${pageName}`, newPage);
       setPages([...pages, response.data]);
       setEditingPageName(pageName);
       setToast('New SEO page added!');
@@ -91,7 +91,7 @@ export default function SEOManager() {
 
     if (confirm(`Are you sure you want to delete SEO settings for "${pageName}"?`)) {
       try {
-        await axios.delete(`${API_BASE_URL}/seo/${pageName}`);
+        await axios.delete(`${API_BASE_URL}/api/seo/${pageName}`);
         setPages(pages.filter(p => p.pageName !== pageName));
         setEditingPageName('Home');
         setToast('SEO page deleted!');

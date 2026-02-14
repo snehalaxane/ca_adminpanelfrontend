@@ -24,7 +24,7 @@ export default function NetworkingManager() {
 
   const fetchContent = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/networking-content`);
+      const res = await axios.get(`${API_BASE_URL}/api/networking-content`);
       if (res.data) setDomesticContent(res.data);
     } catch (err) {
       console.error("Error fetching content:", err);
@@ -33,7 +33,7 @@ export default function NetworkingManager() {
 
   const fetchAssociates = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/networking-associates`);
+      const res = await axios.get(`${API_BASE_URL}/api/networking-associates`);
       setAssociates(res.data);
     } catch (err) {
       console.error("Error fetching associates:", err);
@@ -42,7 +42,7 @@ export default function NetworkingManager() {
 
   const fetchSubmissions = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/networking-submissions`);
+      const res = await axios.get(`${API_BASE_URL}/api/networking-submissions`);
       setSubmissions(res.data);
     } catch (err) {
       console.error("Error fetching submissions:", err);
@@ -51,7 +51,7 @@ export default function NetworkingManager() {
 
   const handleSaveContent = async () => {
     try {
-      await axios.put(`${API_BASE_URL}/networking-content`, domesticContent);
+      await axios.put(`${API_BASE_URL}/api/networking-content`, domesticContent);
       setToast('Networking content saved!');
       setTimeout(() => setToast(''), 3000);
     } catch (err) {
@@ -61,7 +61,7 @@ export default function NetworkingManager() {
 
   const handleAddAssociate = async () => {
     try {
-      const res = await axios.post(`${API_BASE_URL}/networking-associates`, { name: 'New Firm', icon: 'Building2', enabled: true });
+      const res = await axios.post(`${API_BASE_URL}/api/networking-associates`, { name: 'New Firm', icon: 'Building2', enabled: true });
       setAssociates([...associates, res.data]);
     } catch (err) {
       setToast('Error adding associate');
@@ -74,7 +74,7 @@ export default function NetworkingManager() {
     const newItem = { ...item, [field]: value };
     setAssociates(associates.map(a => a._id === id ? newItem : a));
     try {
-      await axios.put(`${API_BASE_URL}/networking-associates/${id}`, newItem);
+      await axios.put(`${API_BASE_URL}/api/networking-associates/${id}`, newItem);
     } catch (err) {
       console.error("Error updating associate:", err);
     }
@@ -82,7 +82,7 @@ export default function NetworkingManager() {
 
   const deleteAssociate = async (id: string) => {
     try {
-      await axios.delete(`${API_BASE_URL}/networking-associates/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/networking-associates/${id}`);
       setAssociates(associates.filter(a => a._id !== id));
     } catch (err) {
       setToast('Error deleting associate');

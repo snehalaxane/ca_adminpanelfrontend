@@ -47,7 +47,7 @@ export default function AlumniManager() {
 
   const fetchAlumni = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/alumni`);
+      const response = await axios.get(`${API_BASE_URL}/api/alumni`);
       setAlumni(response.data);
     } catch (err) {
       console.error('Error fetching alumni:', err);
@@ -149,7 +149,7 @@ export default function AlumniManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this alumni?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/alumni/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/alumni/${id}`);
         setToast('Alumni deleted successfully!');
         fetchAlumni();
       } catch (err) {

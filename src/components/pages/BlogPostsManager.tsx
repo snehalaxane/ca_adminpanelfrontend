@@ -46,7 +46,7 @@ export default function BlogPostsManager() {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/blogs`);
+      const res = await axios.get(`${API_BASE_URL}/api/blogs`);
       setPosts(res.data);
     } catch (err) {
       console.error("Error fetching blog posts:", err);
@@ -117,10 +117,10 @@ export default function BlogPostsManager() {
 
     try {
       if (editingPost) {
-        await axios.put(`${API_BASE_URL}/blogs/${editingPost._id}`, data);
+        await axios.put(`${API_BASE_URL}/api/blogs/${editingPost._id}`, data);
         setToast('Blog post updated successfully!');
       } else {
-        await axios.post(`${API_BASE_URL}/blogs`, data);
+        await axios.post(`${API_BASE_URL}/api/blogs`, data);
         setToast('Blog post created successfully!');
       }
       fetchPosts();
@@ -135,7 +135,7 @@ export default function BlogPostsManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this blog post?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/blogs/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/blogs/${id}`);
         setPosts(posts.filter(p => p._id !== id));
         setToast('Blog post deleted successfully!');
       } catch (err) {

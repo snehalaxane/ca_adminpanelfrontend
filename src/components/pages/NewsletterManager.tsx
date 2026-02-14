@@ -49,7 +49,7 @@ export default function NewsletterManager() {
 
   const fetchNewsletters = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/newsletters`);
+      const res = await axios.get(`${API_BASE_URL}/api/newsletters`);
       setNewsletters(res.data);
     } catch (err) {
       console.error("Error fetching newsletters:", err);
@@ -106,10 +106,10 @@ export default function NewsletterManager() {
 
     try {
       if (editingNewsletter) {
-        await axios.put(`${API_BASE_URL}/newsletters/${editingNewsletter._id}`, data);
+        await axios.put(`${API_BASE_URL}/api/newsletters/${editingNewsletter._id}`, data);
         setToast('Newsletter updated successfully!');
       } else {
-        await axios.post(`${API_BASE_URL}/newsletters`, data);
+        await axios.post(`${API_BASE_URL}/api/newsletters`, data);
         setToast('Newsletter added successfully!');
       }
       fetchNewsletters();
@@ -123,7 +123,7 @@ export default function NewsletterManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this newsletter?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/newsletters/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/newsletters/${id}`);
         setNewsletters(newsletters.filter(n => n._id !== id));
         setToast('Newsletter deleted successfully!');
       } catch (err) {

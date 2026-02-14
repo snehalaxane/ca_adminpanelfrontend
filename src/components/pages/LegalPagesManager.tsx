@@ -31,7 +31,7 @@ export default function LegalPagesManager() {
   const fetchPages = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/legal`);
+      const response = await axios.get(`${API_BASE_URL}/api/legal`);
       setLegalPages(response.data);
       if (response.data.length > 0 && !selectedPageId) {
         setSelectedPageId(response.data[0]._id);
@@ -49,7 +49,7 @@ export default function LegalPagesManager() {
   const handleSaveDraft = async () => {
     if (selectedPage && selectedPageId) {
       try {
-        const response = await axios.put(`${API_BASE_URL}/legal/${selectedPageId}`, {
+        const response = await axios.put(`${API_BASE_URL}/api/legal/${selectedPageId}`, {
           ...selectedPage,
           status: 'draft'
         });
@@ -65,7 +65,7 @@ export default function LegalPagesManager() {
   const handlePublish = async () => {
     if (selectedPage && selectedPageId) {
       try {
-        const response = await axios.put(`${API_BASE_URL}/legal/${selectedPageId}`, {
+        const response = await axios.put(`${API_BASE_URL}/api/legal/${selectedPageId}`, {
           ...selectedPage,
           status: 'published'
         });
@@ -89,7 +89,7 @@ export default function LegalPagesManager() {
     };
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/legal`, newPageData);
+      const response = await axios.post(`${API_BASE_URL}/api/legal`, newPageData);
       setLegalPages([...legalPages, response.data]);
       setSelectedPageId(response.data._id);
       setEditMode(true);
@@ -104,7 +104,7 @@ export default function LegalPagesManager() {
   const handleDeletePage = async (id: string) => {
     if (confirm('Are you sure you want to delete this legal page?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/legal/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/legal/${id}`);
         const updatedList = legalPages.filter(p => p._id !== id);
         setLegalPages(updatedList);
         if (selectedPageId === id) {

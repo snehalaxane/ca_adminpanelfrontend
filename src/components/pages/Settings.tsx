@@ -31,9 +31,9 @@ export default function Settings() {
     setLoading(true);
     try {
       const [generalRes, themeRes, emailRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/settings/general`),
-        axios.get(`${API_BASE_URL}/settings/theme`),
-        axios.get(`${API_BASE_URL}/settings/email`)
+        axios.get(`${API_BASE_URL}/api/settings/general`),
+        axios.get(`${API_BASE_URL}/api/settings/theme`),
+        axios.get(`${API_BASE_URL}/api/settings/email`)
       ]);
 
       setSettings({
@@ -53,7 +53,7 @@ export default function Settings() {
   const handleSaveGeneral = async () => {
     try {
       const { websiteStatus, siteName, tagline, maintenanceMode } = settings;
-      await axios.put(`${API_BASE_URL}/settings/general`, { websiteStatus, siteName, tagline, maintenanceMode });
+      await axios.put(`${API_BASE_URL}/api/settings/general`, { websiteStatus, siteName, tagline, maintenanceMode });
       setToast('General settings saved!');
     } catch (err) {
       setToast('Error saving general settings');
@@ -64,7 +64,7 @@ export default function Settings() {
   const handleSaveTheme = async () => {
     try {
       const { primaryColor, secondaryColor } = settings;
-      await axios.put(`${API_BASE_URL}/settings/theme`, { primaryColor, secondaryColor });
+      await axios.put(`${API_BASE_URL}/api/settings/theme`, { primaryColor, secondaryColor });
       setToast('Theme colors saved!');
     } catch (err) {
       setToast('Error saving theme colors');
@@ -75,7 +75,7 @@ export default function Settings() {
   const handleSaveEmail = async () => {
     try {
       const { emailHost, emailPort, emailUser, emailFrom } = settings;
-      await axios.put(`${API_BASE_URL}/settings/email`, { emailHost, emailPort, emailUser, emailFrom });
+      await axios.put(`${API_BASE_URL}/api/settings/email`, { emailHost, emailPort, emailUser, emailFrom });
       setToast('Email configuration saved!');
     } catch (err) {
       setToast('Error saving email config');
@@ -136,16 +136,8 @@ export default function Settings() {
         console.log('Cleared local storage');
       }
 
-      // Try backend cache clear if available
-      try {
-        const backendRes = await axios.post(`${API_BASE_URL}/cache/clear`, {});
-        if (backendRes.status === 200) {
-          clearedItems.push('backend cache');
-          console.log('Backend cache cleared');
-        }
-      } catch (err) {
-        console.log('Backend cache clear endpoint not available (optional)');
-      }
+      // Backend cache clear not needed - no endpoint in backend
+      // (keep client-side cache clearing above)
 
       const message = clearedItems.length > 0 
         ? `Cache cleared: ${clearedItems.join(', ')}`
