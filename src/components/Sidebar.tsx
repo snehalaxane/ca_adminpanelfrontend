@@ -74,7 +74,7 @@ export default function Sidebar({ currentPage, onNavigate, onLogout }: SidebarPr
   <img
     src={logo}
     alt="R&P Logo"
-    className="h-10 w-auto object-contain"
+     className="h-10 w-auto invert"
   />
 </div>
 
