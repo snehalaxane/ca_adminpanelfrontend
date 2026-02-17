@@ -70,22 +70,29 @@ export default function Sidebar({ currentPage, onNavigate, onLogout }: SidebarPr
   ];
   
  useEffect(() => {
-  axios.get(`${API_BASE_URL}/api/settings/general`)
-    .then(res => {
-      setLogo(res.data.logoUrl);
-    })
-    .catch(err => console.error(err));
+  fetchSettings();
 }, []);
+
+const fetchSettings = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/api/settings/general`);
+    setLogo(res.data.logoUrl);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   return (
     <div className="w-64 bg-gradient-to-b from-[#16181D] via-[#16181D] to-[#0F1115] text-white flex flex-col border-r border-[rgba(136,136,136,0.25)] shadow-xl">
       <div className="p-6 border-b border-[rgba(136,136,136,0.25)] bg-gradient-to-r from-[#16181D] to-[#1a1d24] flex items-center justify-between">
        <div className="flex items-center gap-3">
   <img
-  src={logo ? `${API_BASE_URL}${logo}` : "/default-logo.png"}
+  src={`${API_BASE_URL}${logo}`}
   alt="Logo"
-  className="h-12 w-auto"
+  className="h-10 w-auto"
 />
+
 
 </div>
 
