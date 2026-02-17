@@ -44,6 +44,11 @@ export default function MapLocationsManager() {
     }
   };
 
+  useEffect(() => {
+  console.log("Modal state:", showModal);
+}, [showModal]);
+
+
   const validateForm = () => {
     const errors = {
       city: '',
@@ -446,6 +451,7 @@ export default function MapLocationsManager() {
                   Office Address *
                 </label>
     <textarea
+      autoFocus
   placeholder="Enter full address"
   value={formData.address}
   onChange={(e) => {
