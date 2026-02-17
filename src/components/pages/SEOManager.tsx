@@ -134,15 +134,15 @@ const confirmAddPage = async () => {
     ));
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px] bg-[#0F1115]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#022683]"></div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-[400px] bg-[#0F1115]">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#022683]"></div>
+  //     </div>
+  //   );
+  // }
 
-  if (!currentPage) return <div className="p-8 bg-[#0F1115] text-[#E6E6E6] min-h-screen">No SEO configurations found. Please check backend.</div>;
+  if (!currentPage) return <div className="p-8 bg-[#0F1115] text-[#E6E6E6] min-h-screen">No SEO configurations found.</div>;
 
   return (
     <div className="p-8 bg-gradient-to-br from-[#0F1115] via-[#0F1115] to-[#16181D] min-h-screen">

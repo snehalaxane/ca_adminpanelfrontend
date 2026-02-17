@@ -322,7 +322,7 @@ export default function HistoryManager() {
                     onChange={(e) => setMission({ ...mission, enabled: e.target.checked })}
                     className="sr-only"
                   />
-                  <div className={`w-10 h-5 rounded-full transition-colors ${mission.enabled ? 'bg-[#888888]' : 'bg-[rgba(136,136,136,0.25)]'}`}>
+                  <div className={`w-10 h-5 rounded-full transition-colors ${mission.enabled ? 'bg-green-500' : 'bg-[rgba(136,136,136,0.25)]'}`}>
                     <div className={`w-4 h-4 bg-white rounded-full m-0.5 transition-transform ${mission.enabled ? 'translate-x-5' : ''}`}></div>
                   </div>
                 </label>

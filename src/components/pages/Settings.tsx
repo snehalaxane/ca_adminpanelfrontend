@@ -4,8 +4,24 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+interface SettingsType {
+  websiteStatus: string;
+  siteName: string;
+  tagline: string;
+  primaryColor: string;
+  secondaryColor: string;
+  emailHost: string;
+  emailPort: string;
+  emailUser: string;
+  emailFrom: string;
+  maintenanceMode: boolean;
+  googleAnalytics: string;
+  facebookPixel: string;
+  logoUrl: string;
+}
+
 export default function Settings() {
-  const [settings, setSettings] = useState({
+const [settings, setSettings] = useState<SettingsType>({
     websiteStatus: 'Live',
     siteName: 'Raju & Prasad – Chartered Accountants',
     tagline: 'Excellence in Financial Services',
@@ -17,7 +33,8 @@ export default function Settings() {
     emailFrom: 'Raju & Prasad',
     maintenanceMode: false,
     googleAnalytics: 'UA-XXXXXXXXX-X',
-    facebookPixel: ''
+    facebookPixel: '',
+     logoUrl: '' // 👈 added
   });
 
   const [toast, setToast] = useState('');
@@ -152,13 +169,41 @@ export default function Settings() {
     setTimeout(() => setToast(''), 4000);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px] bg-[#0F1115]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#022683]"></div>
-      </div>
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-[400px] bg-[#0F1115]">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#022683]"></div>
+  //     </div>
+  //   );
+  // }
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("logo", file);
+
+  try {
+    const res = await axios.post(
+      `${API_BASE_URL}/api/settings/general/logo`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
     );
+
+    setSettings(prev => ({
+      ...prev,
+      logoUrl: res.data.logoUrl
+    }));
+
+    setToast("Logo updated successfully!");
+  } catch (err) {
+    setToast("Error uploading logo");
   }
+
+  setTimeout(() => setToast(''), 3000);
+};
+
 
   return (
     <div className="p-8 bg-gradient-to-br from-[#0F1115] via-[#0F1115] to-[#16181D] min-h-screen">
@@ -225,6 +270,27 @@ export default function Settings() {
                   className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-transparent outline-none transition-all text-[#E6E6E6]"
                 />
               </div>
+
+              <div>
+  <label className="block text-sm font-medium text-[#888888] mb-2">
+    Website Logo
+  </label>
+
+  {settings.logoUrl && (
+    <img
+      src={`${API_BASE_URL}${settings.logoUrl}`}
+      alt="Logo Preview"
+      className="h-16 mb-3 object-contain bg-[#0F1115] p-2 rounded"
+    />
+  )}
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handleLogoUpload}
+  />
+</div>
+
 
               {/* <div>
                 <label className="flex items-center gap-3 cursor-pointer group">

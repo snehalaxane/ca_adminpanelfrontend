@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import logo from "../assets/logo.png";
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   LayoutDashboard,
   Home,
@@ -35,6 +34,9 @@ interface SidebarProps {
 
 export default function Sidebar({ currentPage, onNavigate, onLogout }: SidebarProps) {
   const [thinkTankOpen, setThinkTankOpen] = useState(false);
+  const [logo, setLogo] = useState("");
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -66,17 +68,25 @@ export default function Sidebar({ currentPage, onNavigate, onLogout }: SidebarPr
     // { id: 'users', label: 'User Management', icon: Users },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
+  
+ useEffect(() => {
+  axios.get(`${API_BASE_URL}/api/settings/general`)
+    .then(res => {
+      setLogo(res.data.logoUrl);
+    })
+    .catch(err => console.error(err));
+}, []);
 
   return (
     <div className="w-64 bg-gradient-to-b from-[#16181D] via-[#16181D] to-[#0F1115] text-white flex flex-col border-r border-[rgba(136,136,136,0.25)] shadow-xl">
       <div className="p-6 border-b border-[rgba(136,136,136,0.25)] bg-gradient-to-r from-[#16181D] to-[#1a1d24] flex items-center justify-between">
        <div className="flex items-center gap-3">
   <img
-    src={logo}
-    alt="R&P Logo"
-     className="h-12 w-auto invert brightness-200"
+  src={logo ? `${API_BASE_URL}${logo}` : "/default-logo.png"}
+  alt="Logo"
+  className="h-12 w-auto"
+/>
 
-  />
 </div>
 
       </div>

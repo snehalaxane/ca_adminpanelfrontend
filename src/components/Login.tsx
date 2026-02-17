@@ -10,8 +10,6 @@ interface LoginResponse {
   success?: boolean;
 }
 
-
-
 export default function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
