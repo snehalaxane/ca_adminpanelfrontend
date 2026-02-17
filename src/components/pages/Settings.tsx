@@ -53,12 +53,13 @@ const [settings, setSettings] = useState<SettingsType>({
         axios.get(`${API_BASE_URL}/api/settings/email`)
       ]);
 
-      setSettings({
-        ...settings,
-        ...generalRes.data,
-        ...themeRes.data,
-        ...emailRes.data
-      });
+     setSettings(prev => ({
+  ...prev,
+  ...generalRes.data,
+  ...themeRes.data,
+  ...emailRes.data
+}));
+
     } catch (err) {
       console.error('Error fetching settings:', err);
       setToast('Error loading settings');
