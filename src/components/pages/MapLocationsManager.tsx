@@ -98,7 +98,7 @@ export default function MapLocationsManager() {
 
   try {
     const res = await axios.get(
-      `https://maps.googleapis.com/maps/api/geocode/json`,
+      "https://maps.googleapis.com/maps/api/geocode/json",
       {
         params: {
           address: address,
@@ -106,6 +106,8 @@ export default function MapLocationsManager() {
         }
       }
     );
+
+    console.log("GEOCODE RESPONSE:", res.data); // 👈 ADD THIS
 
     if (res.data.status === "OK") {
       const location = res.data.results[0].geometry.location;
@@ -122,6 +124,7 @@ export default function MapLocationsManager() {
     console.error("Error fetching coordinates:", error);
   }
 };
+
 
   const openEditModal = (location: any) => {
     setEditingLocation(location);
