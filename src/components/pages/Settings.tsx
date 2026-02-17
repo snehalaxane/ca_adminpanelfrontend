@@ -154,8 +154,6 @@ const [settings, setSettings] = useState<SettingsType>({
         console.log('Cleared local storage');
       }
 
-      // Backend cache clear not needed - no endpoint in backend
-      // (keep client-side cache clearing above)
 
       const message = clearedItems.length > 0 
         ? `Cache cleared: ${clearedItems.join(', ')}`
@@ -170,14 +168,7 @@ const [settings, setSettings] = useState<SettingsType>({
     setTimeout(() => setToast(''), 4000);
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-[400px] bg-[#0F1115]">
-  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#022683]"></div>
-  //     </div>
-  //   );
-  // }
-
+  
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
