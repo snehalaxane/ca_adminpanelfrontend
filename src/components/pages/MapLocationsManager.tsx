@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Plus, Edit, Trash2, MapPin, Save, Eye, Loader2 } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 export default function MapLocationsManager() {
   const [locations, setLocations] = useState<any[]>([]);
@@ -86,6 +87,36 @@ export default function MapLocationsManager() {
     });
     setShowModal(true);
   };
+
+  const fetchCoordinates = async (address: string) => {
+  if (!address) return;
+
+  try {
+    const res = await axios.get(
+      `https://maps.googleapis.com/maps/api/geocode/json`,
+      {
+        params: {
+          address: address,
+          key: GOOGLE_KEY
+        }
+      }
+    );
+
+    if (res.data.status === "OK") {
+      const location = res.data.results[0].geometry.location;
+
+      setFormData(prev => ({
+        ...prev,
+        latitude: location.lat.toString(),
+        longitude: location.lng.toString()
+      }));
+    } else {
+      console.error("Geocoding failed:", res.data.status);
+    }
+  } catch (error) {
+    console.error("Error fetching coordinates:", error);
+  }
+};
 
   const openEditModal = (location: any) => {
     setEditingLocation(location);
@@ -415,12 +446,15 @@ export default function MapLocationsManager() {
                   Office Address *
                 </label>
                 <textarea
-                  placeholder="Enter full address"
-                  value={formData.address}
-                  onChange={(e) => {
-                    setFormData({ ...formData, address: e.target.value });
-                    setFormErrors({ ...formErrors, address: '' });
-                  }}
+  placeholder="Enter full address"
+  value={formData.address}
+  onBlur={(e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, address: value });
+    setFormErrors({ ...formErrors, address: '' });
+
+    fetchCoordinates(value); // 👈 AUTO FETCH
+  }}
                   rows={2}
                   className={`w-full px-3 py-2 bg-[#0F1115] border ${formErrors.address ? 'border-red-500' : 'border-[rgba(136,136,136,0.25)]'} rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300`}
                 />
