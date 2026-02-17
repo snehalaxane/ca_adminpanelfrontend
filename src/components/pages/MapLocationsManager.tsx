@@ -445,15 +445,17 @@ export default function MapLocationsManager() {
                 <label className="block text-sm font-medium text-[#888888] mb-1">
                   Office Address *
                 </label>
-                <textarea
+    <textarea
   placeholder="Enter full address"
   value={formData.address}
+  onChange={(e) => {
+    setFormData({
+      ...formData,
+      address: e.target.value
+    });
+  }}
   onBlur={(e) => {
-    const value = e.target.value;
-    setFormData({ ...formData, address: value });
-    setFormErrors({ ...formErrors, address: '' });
-
-    fetchCoordinates(value); // 👈 AUTO FETCH
+    fetchCoordinates(e.target.value); // 👈 only fetch after user leaves field
   }}
                   rows={2}
                   className={`w-full px-3 py-2 bg-[#0F1115] border ${formErrors.address ? 'border-red-500' : 'border-[rgba(136,136,136,0.25)]'} rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300`}
