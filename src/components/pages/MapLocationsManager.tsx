@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, MapPin, Save, Eye, Loader2 } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+console.log("GOOGLE KEY:", GOOGLE_KEY);
 
 export default function MapLocationsManager() {
   const [locations, setLocations] = useState<any[]>([]);
