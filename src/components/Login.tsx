@@ -86,7 +86,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-white placeholder:text-[rgba(136,136,136,0.5)] transition-all duration-300 hover:border-[#888888]"
-                placeholder="admin@rajuprasad.com"
+                placeholder="admin@example.com"
                 required
               />
             </div>

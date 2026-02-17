@@ -10,6 +10,9 @@ export default function TeamManager() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingMember, setEditingMember] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+const [deleting, setDeleting] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     designation: '',
@@ -140,18 +143,23 @@ export default function TeamManager() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this team member?')) return;
+  const confirmDelete = async () => {
+  if (!deleteId) return;
 
-    try {
-      await axios.delete(`${API_BASE_URL}/api/team-members/${id}`);
-      showToast('Team member deleted successfully!');
-      fetchTeamMembers();
-    } catch (error) {
-      console.error('Error deleting team member:', error);
-      showToast('Error deleting team member');
-    }
-  };
+  setDeleting(true);
+  try {
+    await axios.delete(`${API_BASE_URL}/api/team-members/${deleteId}`);
+    showToast('Team member deleted successfully!');
+    fetchTeamMembers();
+  } catch (error) {
+    console.error('Error deleting team member:', error);
+    showToast('Error deleting team member');
+  } finally {
+    setDeleting(false);
+    setDeleteId(null);
+  }
+};
+
 
   const showToast = (message: string) => {
     setToast(message);
@@ -244,7 +252,7 @@ export default function TeamManager() {
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(member._id)}
+                    onClick={() => setDeleteId(member._id)}
                     className="p-2 text-red-400 hover:bg-[rgba(255,0,0,0.1)] rounded transition-all duration-300 hover:scale-110"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -502,6 +510,39 @@ export default function TeamManager() {
           {toast}
         </div>
       )}
+      {deleteId && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+    <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
+      
+      <h3 className="text-sm font-semibold text-white mb-2">
+        Delete this team member?
+      </h3>
+
+      <p className="text-xs text-[#888888] mb-4">
+        This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setDeleteId(null)}
+          className="px-3 py-1.5 text-xs rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          disabled={deleting}
+          className="px-3 py-1.5 text-xs rounded bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-50"
+        >
+          {deleting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, Eye, FileText, Globe, CheckCircle, Clock } from 'lucide-react';
 import axios from 'axios';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -85,7 +89,8 @@ const [deleting, setDeleting] = useState(false);
     const newPageData: Partial<LegalPage> = {
       pageTitle: 'New Legal Page',
       pageSlug: `/new-legal-page-${Date.now()}`,
-      content: '## New Legal Page\n\nStart writing your content here...',
+     content: '<h2>New Legal Page</h2><p>Start writing your content here...</p>',
+
       metaTitle: 'New Legal Page',
       metaDescription: 'Description for new legal page',
       status: 'draft'
@@ -292,31 +297,18 @@ const confirmDelete = async () => {
               {/* Content Area */}
               <div className="p-6">
                 {showPreview ? (
-                  // Preview Mode
-                  <div className="max-w-4xl mx-auto">
-                    <div className="prose prose-lg max-w-none">
-                      <h1 className="text-3xl font-bold text-[#888888] mb-6">{selectedPage.pageTitle}</h1>
-                      <div
-                        className="text-[#E6E6E6] leading-relaxed"
-                        style={{ whiteSpace: 'pre-line' }}
-                      >
-                        {selectedPage.content.split('\n').map((line, idx) => {
-                          if (line.startsWith('## ')) {
-                            return <h2 key={idx} className="text-2xl font-bold text-[#888888] mt-8 mb-4">{line.replace('## ', '')}</h2>;
-                          } else if (line.startsWith('### ')) {
-                            return <h3 key={idx} className="text-xl font-bold text-[#888888] mt-6 mb-3">{line.replace('### ', '')}</h3>;
-                          } else if (line.startsWith('• ')) {
-                            return <li key={idx} className="ml-6 mb-2 text-[#E6E6E6]">{line.replace('• ', '')}</li>;
-                          } else if (line.trim() === '') {
-                            return <br key={idx} />;
-                          } else {
-                            return <p key={idx} className="mb-4 text-[#E6E6E6]">{line}</p>;
-                          }
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
+  <div className="max-w-4xl mx-auto">
+    <h1 className="text-3xl font-bold text-[#E6E6E6] mb-6">
+      {selectedPage.pageTitle}
+    </h1>
+
+    <div
+      className="prose prose-lg max-w-none text-[#E6E6E6]"
+      dangerouslySetInnerHTML={{ __html: selectedPage.content }}
+    />
+  </div>
+) : (
+
                   // Edit Mode
                   <div className="space-y-4">
                     <div>
@@ -326,7 +318,19 @@ const confirmDelete = async () => {
                       <input
                         type="text"
                         value={selectedPage.pageTitle}
-                        onChange={(e) => updateSelectedPage({ pageTitle: e.target.value })}
+                       onChange={(e) => {
+  const title = e.target.value;
+  const slug = '/' + title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-');
+
+  updateSelectedPage({
+    pageTitle: title,
+    pageSlug: slug
+  });
+}}
+
                         className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all"
                       />
                     </div>
@@ -344,20 +348,38 @@ const confirmDelete = async () => {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[#888888] mb-2">
-                        Content <span className="text-xs text-[#888888]/70">(Markdown supported: ## for H2, ### for H3, • for bullets)</span>
-                      </label>
-                      <textarea
-                        value={selectedPage.content}
-                        onChange={(e) => updateSelectedPage({ content: e.target.value })}
-                        rows={20}
-                        className="w-full px-4 py-3 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none font-mono text-sm text-[#E6E6E6] transition-all"
-                        placeholder="## Section Title&#10;&#10;Your content here...&#10;&#10;• Bullet point&#10;• Another point"
-                      />
-                    </div>
+                   <div>
+  <label className="block text-sm font-medium text-black-100 mb-2">
+    Content
+  </label>
 
-                    <div className="p-4 bg-[rgba(2,38,131,0.1)] border border-[rgba(136,136,136,0.25)] rounded-lg">
+ <div className="border border-[rgba(136,136,136,0.25)] rounded-lg overflow-hidden">
+  <CKEditor
+    editor={ClassicEditor as any}
+    data=""
+    onChange={(event: any, editor: any) => {
+      const data = editor.getData();
+      updateSelectedPage({ content: data });
+    }}
+  />
+</div>
+
+{/* Live Content Preview Below Editor */}
+<div className="mt-6 p-6 bg-[#0F1115] border border-[rgba(136,136,136,0.2)] rounded-lg">
+  <h3 className="text-lg font-semibold text-[#E6E6E6] mb-4">
+    Live Content Preview
+  </h3>
+
+  <div
+    className="prose prose-lg max-w-none text-[#E6E6E6]"
+    dangerouslySetInnerHTML={{ __html: selectedPage.content }}
+  />
+</div>
+
+</div>
+
+
+                    {/* <div className="p-4 bg-[rgba(2,38,131,0.1)] border border-[rgba(136,136,136,0.25)] rounded-lg">
                       <p className="text-sm text-[#E6E6E6]">
                         <strong>💡 Formatting Tips:</strong>
                       </p>
@@ -367,7 +389,7 @@ const confirmDelete = async () => {
                         <li>• Use <code className="bg-[rgba(136,136,136,0.2)] px-1 rounded text-[#E6E6E6]">• Item</code> for bullet points</li>
                         <li>• Leave blank lines between paragraphs</li>
                       </ul>
-                    </div>
+                    </div> */}
                   </div>
                 )}
               </div>

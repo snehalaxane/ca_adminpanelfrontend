@@ -294,7 +294,7 @@ const confirmAddPage = async () => {
                 </p>
               </div> */}
 
-              <div className="pt-4 border-t border-[rgba(136,136,136,0.25)]">
+              {/* <div className="pt-4 border-t border-[rgba(136,136,136,0.25)]">
                 <h3 className="font-bold text-[#E6E6E6] mb-3">Additional Settings</h3>
 
                 <div className="space-y-3">
@@ -328,7 +328,7 @@ const confirmAddPage = async () => {
                     <span className="text-sm text-[#888888] group-hover:text-[#E6E6E6] transition-colors">Include in XML sitemap</span>
                   </label>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

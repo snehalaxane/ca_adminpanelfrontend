@@ -11,6 +11,9 @@ export default function MapLocationsManager() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingLocation, setEditingLocation] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [deleteId, setDeleteId] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     city: '',
     state: '',
@@ -30,6 +33,21 @@ export default function MapLocationsManager() {
     address: ''
   });
   const [toast, setToast] = useState('');
+  const [address, setAddress] = useState("");
+const [latitude, setLatitude] = useState<number | null>(null);
+const [longitude, setLongitude] = useState<number | null>(null);
+
+
+useEffect(() => {
+  if (!formData.address) return;
+
+  const timeout = setTimeout(() => {
+    fetchCoordinates(formData.address);
+  }, 800); // wait 800ms after typing stops
+
+  return () => clearTimeout(timeout);
+}, [formData.address]);
+
 
   useEffect(() => {
     fetchLocations();
@@ -62,8 +80,8 @@ export default function MapLocationsManager() {
 
     if (!formData.city.trim()) errors.city = 'City is required';
     if (!formData.state.trim()) errors.state = 'State is required';
-    if (!formData.latitude.trim()) errors.latitude = 'Latitude is required';
-    if (!formData.longitude.trim()) errors.longitude = 'Longitude is required';
+    if (!formData.latitude) errors.latitude = 'Latitude is required';
+    if (!formData.longitude) errors.longitude = 'Longitude is required';
     if (!formData.tooltip.trim()) errors.tooltip = 'Tooltip is required';
     if (!formData.address.trim()) errors.address = 'Address is required';
 
@@ -94,37 +112,35 @@ export default function MapLocationsManager() {
     setShowModal(true);
   };
 
-  const fetchCoordinates = async (address: string) => {
-  if (!address) return;
-
+ const fetchCoordinates = async (address: string) => {
   try {
-    const res = await axios.get(
-      "https://maps.googleapis.com/maps/api/geocode/json",
-      {
-        params: {
-          address: address,
-          key: GOOGLE_KEY
-        }
-      }
+    const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_KEY}`
     );
 
-    console.log("GEOCODE RESPONSE:", res.data); // 👈 ADD THIS
+    const data = await response.json();
 
-    if (res.data.status === "OK") {
-      const location = res.data.results[0].geometry.location;
+    if (data.status === "OK") {
+      const location = data.results[0].geometry.location;
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        latitude: location.lat.toString(),
-        longitude: location.lng.toString()
+        latitude: location.lat,
+        longitude: location.lng,
       }));
+
+      console.log("Coordinates fetched:", location.lat, location.lng);
     } else {
-      console.error("Geocoding failed:", res.data.status);
+      console.error("Geocoding failed:", data.status);
     }
   } catch (error) {
     console.error("Error fetching coordinates:", error);
   }
 };
+
+
 
 
   const openEditModal = (location: any) => {
@@ -195,18 +211,22 @@ export default function MapLocationsManager() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this location?')) return;
+  const handleDelete = async () => {
+  if (!deleteId) return;
 
-    try {
-      await axios.delete(`${API_BASE_URL}/api/map-locations/${id}`);
-      showToast('Location deleted successfully!');
-      fetchLocations();
-    } catch (error) {
-      console.error('Error deleting location:', error);
-      showToast('Error deleting location');
-    }
-  };
+  try {
+    await axios.delete(`${API_BASE_URL}/api/map-locations/${deleteId}`);
+    showToast('Location deleted successfully!');
+    fetchLocations();
+  } catch (error) {
+    console.error('Error deleting location:', error);
+    showToast('Error deleting location');
+  } finally {
+    setShowDeleteModal(false);
+    setDeleteId(null);
+  }
+};
+
 
   const handleToggleEnabled = async (id: string, currentEnabled: boolean) => {
     try {
@@ -281,7 +301,11 @@ export default function MapLocationsManager() {
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(location._id)}
+                    onClick={() => {
+  setDeleteId(location._id);
+  setShowDeleteModal(true);
+}}
+
                     className="p-2 text-red-400 hover:bg-[rgba(255,0,0,0.1)] rounded transition-all duration-300 hover:scale-110"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -323,21 +347,32 @@ export default function MapLocationsManager() {
                 </div>
                 {/* Pin indicators */}
                 {locations.filter(loc => loc.enabled).map((loc, idx) => (
-                  <div
-                    key={loc._id}
-                    className="absolute animate-pulse"
-                    style={{
-                      left: `${20 + idx * 15}%`,
-                      top: `${30 + idx * 12}%`
-                    }}
-                  >
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center shadow-lg"
-                      style={{ backgroundColor: loc.pinColor }}
-                    >
-                      <MapPin className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
+                 <div
+  key={loc._id}
+  className="absolute group"
+  style={{
+    left: `${20 + idx * 15}%`,
+    top: `${30 + idx * 12}%`
+  }}
+>
+  {/* Pin */}
+  <div
+    className="w-6 h-6 rounded-full flex items-center justify-center shadow-lg animate-pulse cursor-pointer"
+    style={{ backgroundColor: loc.pinColor }}
+  >
+    <MapPin className="w-4 h-4 text-white" />
+  </div>
+
+  {/* Tooltip */}
+  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 
+                  bg-[#0F1115] text-white text-xs px-3 py-1 rounded 
+                  opacity-0 group-hover:opacity-100 
+                  transition-all duration-300 whitespace-nowrap 
+                  border border-[rgba(136,136,136,0.25)] shadow-lg">
+    {loc.tooltip}
+  </div>
+</div>
+
                 ))}
               </div>
             </div>
@@ -464,9 +499,7 @@ export default function MapLocationsManager() {
       address: e.target.value
     });
   }}
-  onBlur={(e) => {
-    fetchCoordinates(e.target.value); // 👈 only fetch after user leaves field
-  }}
+ 
                   rows={2}
                   className={`w-full px-3 py-2 bg-[#0F1115] border ${formErrors.address ? 'border-red-500' : 'border-[rgba(136,136,136,0.25)]'} rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300`}
                 />
@@ -527,6 +560,42 @@ export default function MapLocationsManager() {
           {toast}
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+{showDeleteModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] p-6 rounded-lg w-[400px] border border-[rgba(136,136,136,0.25)] shadow-xl">
+      
+      <h3 className="text-lg font-bold text-white mb-3">
+        Delete Location
+      </h3>
+
+      <p className="text-[#888888] mb-6">
+        Are you sure you want to delete this location? This action cannot be undone.
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => {
+            setShowDeleteModal(false);
+            setDeleteId(null);
+          }}
+          className="px-4 py-2 bg-[rgba(136,136,136,0.3)] text-[#E6E6E6] rounded hover:bg-[rgba(136,136,136,0.4)] transition-all duration-300"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleDelete}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-all duration-300"
+        >
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

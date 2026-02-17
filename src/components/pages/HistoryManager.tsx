@@ -365,7 +365,7 @@ export default function HistoryManager() {
 
         {/* Preview Panel */}
         <div className="lg:col-span-1">
-          <div className="bg-[#16181D] rounded-lg shadow-lg p-6 border border-[rgba(136,136,136,0.25)] sticky top-8 hover-card-lift animate-fade-in">
+          <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-lg shadow-lg p-6 border border-[rgba(136,136,136,0.25)] sticky top-8 hover-card-lift animate-fade-in">
             <h3 className="font-bold text-[#E6E6E6] mb-4 flex items-center gap-2">
               <span className="text-[#888888]">●</span> Page Preview
             </h3>
