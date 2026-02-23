@@ -1,0 +1,673 @@
+import React, { useState, useEffect } from 'react';
+import { Eye, Save, Edit, Image as ImageIcon } from 'lucide-react';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+export default function HomePageManager() {
+  const [heroData, setHeroData] = useState({
+    highlightNumber: "",
+    highlightText: "",
+    title: "",
+    subtitle: "",
+    description: "",
+    ctas: [
+      { text: "", link: "" },
+      { text: "", link: "" }, // 👈 second CTA
+    ],
+    imageUrl: "",
+    enabled: false,
+    stat1: "",
+    stat2: "",
+    stat3: "",
+    presenceTitle: "",
+    presenceSubtitle: "",
+  });
+
+  const [aboutData, setAboutData] = useState({
+    title: "",
+    description: "",
+    stats: [
+      { number: "", label: "", icon: "Award" },
+      { number: "", label: "", icon: "MapPin" },
+      { number: "", label: "", icon: "Briefcase" },
+      { number: "", label: "", icon: "Users" },
+    ],
+    enabled: false,
+  });
+
+  const availableIcons = [
+    "Award", "MapPin", "Users", "Briefcase", "Clock", "Globe", "Building2", "ShieldCheck", "CheckCircle2", "Zap", "Star", "Heart", "Target", "TrendingUp"
+  ];
+
+
+  const [toast, setToast] = useState('');
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
+  const [aboutIconFiles, setAboutIconFiles] = useState<(File | null)[]>([null, null, null, null]);
+
+  const saveHero = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("highlightNumber", heroData.highlightNumber);
+      formData.append("highlightText", heroData.highlightText);
+      formData.append("title", heroData.title);
+      formData.append("subtitle", heroData.subtitle);
+      formData.append("description", heroData.description);
+      formData.append("ctas", JSON.stringify(heroData.ctas));
+      formData.append("enabled", String(heroData.enabled));
+      formData.append("stat1", heroData.stat1);
+      formData.append("stat2", heroData.stat2);
+      formData.append("stat3", heroData.stat3);
+      formData.append("presenceTitle", heroData.presenceTitle);
+      formData.append("presenceSubtitle", heroData.presenceSubtitle);
+
+      if (heroImageFile) {
+        formData.append("image", heroImageFile);
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/hero`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error();
+
+      setToast("Hero Section saved successfully!");
+    } catch {
+      setToast("Failed to save Hero Section");
+    }
+
+    setTimeout(() => setToast(""), 3000);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setHeroImageFile(file);
+
+    // Optional preview
+    const previewUrl = URL.createObjectURL(file);
+    setHeroData(prev => ({
+      ...prev,
+      imageUrl: previewUrl,
+    }));
+  };
+
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/about`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data) {
+          setAboutData({
+            title: data.title ?? "",
+            description: data.description ?? "",
+            stats: data.stats?.length
+              ? data.stats.map((s: any) => ({
+                number: s.number ?? "",
+                label: s.label ?? "",
+                icon: s.icon ? (s.icon.startsWith('http') ? s.icon : `${API_BASE_URL}${s.icon}`) : ""
+              }))
+              : [
+                { number: "", label: "", icon: "" },
+                { number: "", label: "", icon: "" },
+                { number: "", label: "", icon: "" },
+                { number: "", label: "", icon: "" },
+              ],
+            enabled: data.enabled ?? false,
+          });
+        }
+      });
+  }, []);
+
+
+
+  useEffect(() => {
+    const fetchHero = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/hero`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        setHeroData({
+          highlightNumber: data.highlightNumber ?? "",
+          highlightText: data.highlightText ?? "",
+          title: data.title ?? "",
+          subtitle: data.subtitle ?? "",
+          description: data.description ?? "",
+          ctas: data.ctas?.length === 2
+            ? data.ctas
+            : [
+              { text: "", link: "" },
+              { text: "", link: "" },
+            ],
+          imageUrl: data.imageUrl ? (data.imageUrl.startsWith('http') ? data.imageUrl : `${API_BASE_URL}${data.imageUrl}`) : "",
+          enabled: data.enabled ?? false,
+          stat1: data.stat1 ?? "",
+          stat2: data.stat2 ?? "",
+          stat3: data.stat3 ?? "",
+          presenceTitle: data.presenceTitle ?? "",
+          presenceSubtitle: data.presenceSubtitle ?? "",
+        });
+      } catch (err) {
+        console.error("Hero load failed");
+      }
+    };
+
+    fetchHero();
+  }, []);
+
+
+  const handleSave = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("title", aboutData.title);
+      formData.append("description", aboutData.description);
+      formData.append("enabled", String(aboutData.enabled));
+
+      // Send stats as JSON string
+      formData.append("stats", JSON.stringify(aboutData.stats.map(s => ({
+        number: s.number,
+        label: s.label,
+        icon: s.icon // keep existing path if no new file
+      }))));
+
+      // Append icon files with indexed names
+      aboutIconFiles.forEach((file, index) => {
+        if (file) {
+          formData.append(`stat_icon_${index}`, file);
+        }
+      });
+
+      const res = await fetch(`${API_BASE_URL}/api/about`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error();
+
+      setToast("About Section saved successfully!");
+      // Reset files after save
+      setAboutIconFiles([null, null, null, null]);
+    } catch (error) {
+      setToast("Failed to save About Section");
+    }
+
+    setTimeout(() => setToast(""), 3000);
+  };
+
+
+
+
+  return (
+    <div className="p-8 bg-gradient-to-br from-[#0F1115] via-[#0F1115] to-[#16181D] min-h-full">
+      <div className="mb-8 flex items-center justify-between animate-fade-in">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Home Page Management</h1>
+          <p className="text-[#888888]">Manage all sections of your home page</p>
+        </div>
+        {/* <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#888888] to-[#022683] text-white rounded-lg hover:from-[#022683] hover:to-[#888888] transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(255,255,255,0.1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <Eye className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:scale-110" />
+          <span className="relative z-10">Preview Website</span>
+        </button> */}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Editor Section */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Hero Section */}
+          <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-lg shadow-lg p-6 border border-[rgba(136,136,136,0.25)] hover-card-lift animate-fade-in transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <span className="w-1 h-6 bg-gradient-to-b from-[#888888] to-[#022683] rounded-full animate-pulse-slow"></span>
+                Hero Section
+              </h2>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={heroData.enabled}
+                  onChange={(e) => setHeroData({ ...heroData, enabled: e.target.checked })}
+                  className="sr-only"
+                />
+                <div className={`w-11 h-6 rounded-full transition-all duration-300 ${heroData.enabled ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-[rgba(136,136,136,0.3)]'} group-hover:shadow-lg`}>
+                  <div className={`w-5 h-5 bg-white rounded-full m-0.5 transition-all duration-300 shadow-md ${heroData.enabled ? 'translate-x-5' : ''} group-hover:scale-110`}></div>
+                </div>
+                <span className="text-sm text-[#888888] transition-colors duration-300 group-hover:text-[#E6E6E6]">{heroData.enabled ? 'Enabled' : 'Disabled'}</span>
+              </label>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                  <label className="block text-sm font-medium text-[#888888] mb-2">
+                    Highlight Number
+                  </label>
+                  <input
+                    type="text"
+                    value={heroData.highlightNumber}
+                    onChange={(e) => setHeroData({ ...heroData, highlightNumber: e.target.value })}
+                    className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300 hover:border-[#888888]"
+                  />
+                </div>
+                <div className="animate-fade-in" style={{ animationDelay: '0.15s' }}>
+                  <label className="block text-sm font-medium text-[#888888] mb-2">
+                    Highlight Text
+                  </label>
+                  <input
+                    type="text"
+                    value={heroData.highlightText}
+                    onChange={(e) => setHeroData({ ...heroData, highlightText: e.target.value })}
+                    className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300 hover:border-[#888888]"
+                  />
+                </div>
+              </div>
+
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  Main Title
+                </label>
+                <input
+                  type="text"
+                  value={heroData.title}
+                  onChange={(e) => setHeroData({ ...heroData, title: e.target.value })}
+                  className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300 hover:border-[#888888]"
+                />
+              </div>
+
+              {/* <div className="animate-fade-in" style={{ animationDelay: '0.25s' }}>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  Subtitle
+                </label>
+                <input
+                  type="text"
+                  value={heroData.subtitle}
+                  onChange={(e) => setHeroData({ ...heroData, subtitle: e.target.value })}
+                  className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300 hover:border-[#888888]"
+                />
+              </div> */}
+
+              <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={heroData.description}
+                  onChange={(e) => setHeroData({ ...heroData, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300 hover:border-[#888888]"
+                />
+              </div>
+
+              {/* Stats Section Fields */}
+              <div className="grid grid-cols-3 gap-4 animate-fade-in" style={{ animationDelay: '0.35s' }}>
+                <div>
+                  <label className="block text-sm font-medium text-[#888888] mb-2">Stat 1</label>
+                  <input
+                    type="text"
+                    value={heroData.stat1}
+                    onChange={(e) => setHeroData({ ...heroData, stat1: e.target.value })}
+                    className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6]"
+                    placeholder="e.g. 7 Office Locations"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#888888] mb-2">Stat 2</label>
+                  <input
+                    type="text"
+                    value={heroData.stat2}
+                    onChange={(e) => setHeroData({ ...heroData, stat2: e.target.value })}
+                    className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6]"
+                    placeholder="e.g. 200+ Qualified CAs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#888888] mb-2">Stat 3</label>
+                  <input
+                    type="text"
+                    value={heroData.stat3}
+                    onChange={(e) => setHeroData({ ...heroData, stat3: e.target.value })}
+                    className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6]"
+                    placeholder="e.g. 1979 Established"
+                  />
+                </div>
+              </div>
+
+              {/* Presence Section Fields */}
+              <div className="grid grid-cols-2 gap-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                <div>
+                  <label className="block text-sm font-medium text-[#888888] mb-2">Presence Title</label>
+                  <input
+                    type="text"
+                    value={heroData.presenceTitle}
+                    onChange={(e) => setHeroData({ ...heroData, presenceTitle: e.target.value })}
+                    className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6]"
+                    placeholder="e.g. Our Pan-India Presence"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#888888] mb-2">Presence Subtitle</label>
+                  <input
+                    type="text"
+                    value={heroData.presenceSubtitle}
+                    onChange={(e) => setHeroData({ ...heroData, presenceSubtitle: e.target.value })}
+                    className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6]"
+                    placeholder="e.g. 7 Strategic Locations..."
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {heroData.ctas.map((cta, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-4">
+
+                    {/* CTA TEXT */}
+                    <div>
+                      <label className="block text-sm font-medium text-[#888888] mb-2">
+                        CTA {index + 1} Text
+                      </label>
+                      <input
+                        type="text"
+                        value={cta.text}
+                        onChange={(e) => {
+                          const updated = [...heroData.ctas];
+                          updated[index].text = e.target.value;
+                          setHeroData({ ...heroData, ctas: updated });
+                        }}
+                        className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6]"
+                      />
+                    </div>
+
+                    {/* CTA LINK */}
+                    <div>
+                      <label className="block text-sm font-medium text-[#888888] mb-2">
+                        CTA {index + 1} URL
+                      </label>
+                      <input
+                        type="text"
+                        value={cta.link}
+                        onChange={(e) => {
+                          const updated = [...heroData.ctas];
+                          updated[index].link = e.target.value;
+                          setHeroData({ ...heroData, ctas: updated });
+                        }}
+                        className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6]"
+                      />
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+              <div className="animate-fade-in" style={{ animationDelay: "0.45s" }}>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  Background Image
+                </label>
+
+                <div className="flex items-center gap-4">
+                  <label
+                    className="flex items-center gap-2 px-4 py-2 border border-[rgba(136,136,136,0.25)]
+                 bg-[#0F1115] rounded-lg cursor-pointer
+                 hover:border-[#888888] text-[#E6E6E6]
+                 transition-all duration-300"
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    Upload Image
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+
+                  {heroData.imageUrl && (
+                    <span className="text-sm text-green-500">
+                      Image selected ✓
+                    </span>
+                  )}
+                </div>
+
+                {/* Optional Preview */}
+                {heroData.imageUrl && (
+                  <div className="mt-4">
+                    <img
+                      src={heroData.imageUrl}
+                      alt="Hero Preview"
+                      className="w-20 h-20 object-cover rounded-lg border border-[rgba(136,136,136,0.25)]"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={saveHero}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#022683] to-[#033aa0] text-white rounded-lg hover:from-[#033aa0] hover:to-[#022683] transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden group animate-fade-in"
+                style={{ animationDelay: '0.5s' }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[rgba(136,136,136,0.2)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <Save className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:rotate-12" />
+                <span className="relative z-10">Save Hero Section</span>
+              </button>
+            </div>
+          </div>
+
+          {/* About/Experience Section */}
+          {<div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-lg shadow-lg p-6 border border-[rgba(136,136,136,0.25)] hover-card-lift animate-fade-in transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <span className="w-1 h-6 bg-gradient-to-b from-[#888888] to-[#022683] rounded-full animate-pulse-slow"></span>
+                About / Experience Section
+              </h2>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={aboutData.enabled}
+                  onChange={(e) => setAboutData({ ...aboutData, enabled: e.target.checked })}
+                  className="sr-only"
+                />
+                <div className={`w-11 h-6 rounded-full transition-all duration-300 ${aboutData.enabled ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-[rgba(136,136,136,0.3)]'} group-hover:shadow-lg`}>
+                  <div className={`w-5 h-5 bg-white rounded-full m-0.5 transition-all duration-300 shadow-md ${aboutData.enabled ? 'translate-x-5' : ''} group-hover:scale-110`}></div>
+                </div>
+                <span className="text-sm text-[#888888] transition-colors duration-300 group-hover:text-[#E6E6E6]">{aboutData.enabled ? 'Enabled' : 'Disabled'}</span>
+              </label>
+            </div>
+
+            <div className="space-y-4">
+              <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  Section Title
+                </label>
+                <input
+                  type="text"
+                  value={aboutData.title}
+                  onChange={(e) => setAboutData({ ...aboutData, title: e.target.value })}
+                  className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300 hover:border-[#888888]"
+                />
+              </div>
+
+              <div className="animate-fade-in" style={{ animationDelay: '0.15s' }}>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={aboutData.description}
+                  onChange={(e) => setAboutData({ ...aboutData, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300 hover:border-[#888888]"
+                />
+              </div>
+
+              <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                <label className="block text-sm font-medium text-[#888888] mb-4">
+                  Statistics
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  {aboutData.stats?.map((stat, index) => (
+
+                    <div key={index} className="p-4 border border-[rgba(136,136,136,0.25)] bg-[#0F1115] rounded-lg transition-all duration-300 hover:border-[#888888] hover-card-lift animate-fade-in" style={{ animationDelay: `${0.25 + index * 0.05}s` }}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <label className="flex-shrink-0 cursor-pointer p-2 bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded-lg hover:border-[#888888] transition-all">
+                          <ImageIcon className="w-4 h-4 text-[#888888]" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const newFiles = [...aboutIconFiles];
+                                newFiles[index] = file;
+                                setAboutIconFiles(newFiles);
+
+                                // Preview locally
+                                const newStats = [...aboutData.stats];
+                                newStats[index].icon = URL.createObjectURL(file);
+                                setAboutData({ ...aboutData, stats: newStats });
+                              }
+                            }}
+                          />
+                        </label>
+                        {stat.icon && (
+                          <img src={stat.icon} alt="icon" className="w-8 h-8 object-contain rounded" />
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={stat.number}
+                        onChange={(e) => {
+                          const newStats = [...aboutData.stats];
+                          newStats[index].number = e.target.value;
+                          setAboutData({ ...aboutData, stats: newStats });
+                        }}
+                        className="w-full px-2 py-1 mb-2 bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300"
+                        placeholder="Number"
+                      />
+                      <input
+                        type="text"
+                        value={stat.label}
+                        onChange={(e) => {
+                          const newStats = [...aboutData.stats];
+                          newStats[index].label = e.target.value;
+                          setAboutData({ ...aboutData, stats: newStats });
+                        }}
+                        className="w-full px-2 py-1 bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300"
+                        placeholder="Label"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={handleSave}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#022683] to-[#033aa0] text-white rounded-lg hover:from-[#033aa0] hover:to-[#022683] transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden group animate-fade-in"
+                style={{ animationDelay: '0.5s' }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-[rgba(136,136,136,0.2)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <Save className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:rotate-12" />
+                <span className="relative z-10">Save About Section</span>
+              </button>
+            </div>
+          </div>}
+        </div>
+
+        {/* Live Preview Panel */}
+        <div className="lg:col-span-1">
+          <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-lg shadow-lg p-6 border border-[rgba(136,136,136,0.25)] sticky top-8 hover-card-lift animate-fade-in">
+            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+              <Eye className="w-5 h-5 text-[#888888]" />
+              Live Preview
+            </h3>
+
+            {/* Hero Preview */}
+            {heroData.enabled && (
+              <div className="mb-6 p-4 bg-gradient-to-r from-[#888888] to-[#022683] rounded-lg text-white shadow-lg animate-fade-in transition-all duration-300 hover:scale-105">
+                <div className="text-2xl font-bold mb-2 animate-bounce-subtle">
+                  {heroData.highlightNumber} {heroData.highlightText}
+                </div>
+                <h2 className="text-lg font-bold mb-1">{heroData.title}</h2>
+                {/* <p className="text-sm text-white/80 mb-2">{heroData.subtitle}</p> */}
+                <p className="text-xs text-white/70 mb-3">{heroData.description}</p>
+
+                {/* Stats Preview */}
+                <div className="grid grid-cols-3 gap-2 mb-3 text-[10px] text-center bg-black/20 p-2 rounded">
+                  <div>{heroData.stat1}</div>
+                  <div>{heroData.stat2}</div>
+                  <div>{heroData.stat3}</div>
+                </div>
+
+                {/* Presence Preview */}
+                <div className="mb-3 border-t border-white/20 pt-2">
+                  <div className="text-xs font-bold">{heroData.presenceTitle}</div>
+                  <div className="text-[10px] text-white/60">{heroData.presenceSubtitle}</div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button className="px-3 py-1.5 bg-white text-[#022683] rounded text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                    {heroData.ctas[0]?.text}
+                  </button>
+
+                  <button className="px-3 py-1.5 bg-white text-[#022683] rounded text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                    {heroData.ctas[1]?.text}
+                  </button>
+                </div>
+
+
+              </div>
+            )}
+
+            {/* About Preview */}
+            {aboutData.enabled && (
+              <div className="p-4 bg-[#0F1115] rounded-lg border border-[rgba(136,136,136,0.25)] animate-fade-in transition-all duration-300 hover:border-[#888888]">
+                <h3 className="font-bold text-white mb-2">{aboutData.title}</h3>
+                <p className="text-sm text-[#888888] mb-3">{aboutData.description}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {aboutData.stats?.map((stat, index) => (
+
+                    <div key={index} className="text-center p-2 bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded border border-[rgba(136,136,136,0.25)] transition-all duration-300 hover:scale-105 hover-card-lift">
+                      {stat.icon && (
+                        <img src={stat.icon} alt="icon" className="w-6 h-6 object-contain mx-auto mb-1 opacity-80" />
+                      )}
+                      <div className="font-bold text-[#888888] text-sm">{stat.number}</div>
+                      <div className="text-xs text-[#888888]">{stat.label}</div>
+                    </div>
+
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-8 right-8 bg-gradient-to-r from-[#888888] to-[#022683] text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in border border-[rgba(255,255,255,0.2)] animate-glow-pulse">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            {toast}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
