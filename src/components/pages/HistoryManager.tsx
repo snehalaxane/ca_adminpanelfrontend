@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, Upload, Building2, Calendar, MapPin, Sparkles } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, Upload, Building2, Calendar, MapPin, Sparkles, ChevronUp, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -131,6 +131,35 @@ export default function HistoryManager() {
       await axios.put(`${API_BASE_URL}/api/history-timeline/${id}`, newItem);
     } catch (err) {
       console.error("Error updating timeline event:", err);
+    }
+  };
+
+  const moveTimelineEvent = async (id: string, direction: 'up' | 'down') => {
+    const index = timeline.findIndex(t => t._id === id);
+    if ((direction === 'up' && index === 0) || (direction === 'down' && index === timeline.length - 1)) return;
+
+    const newTimeline = [...timeline];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+    // Swap items in state
+    [newTimeline[index], newTimeline[targetIndex]] = [newTimeline[targetIndex], newTimeline[index]];
+
+    // Assign new order based on current index
+    const updatedTimeline = newTimeline.map((item, idx) => ({ ...item, order: idx }));
+    setTimeline(updatedTimeline);
+
+    try {
+      // Save changed items to backend
+      const item1 = updatedTimeline[index];
+      const item2 = updatedTimeline[targetIndex];
+      await Promise.all([
+        axios.put(`${API_BASE_URL}/api/history-timeline/${item1._id}`, item1),
+        axios.put(`${API_BASE_URL}/api/history-timeline/${item2._id}`, item2)
+      ]);
+    } catch (err) {
+      console.error("Error reordering timeline:", err);
+      setToast('Error moving item');
+      fetchTimeline(); // Revert on failure
     }
   };
 
@@ -294,9 +323,28 @@ export default function HistoryManager() {
                         className="flex-1 px-3 py-2 bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#888888]"
                         placeholder="Year (e.g. 1979)"
                       />
+                      <div className="flex bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => moveTimelineEvent(item._id, 'up')}
+                          disabled={timeline.indexOf(item) === 0}
+                          className="p-2 text-[#888888] hover:text-[#E6E6E6] hover:bg-white/5 transition-colors disabled:opacity-20"
+                          title="Move Up"
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </button>
+                        <div className="w-[1px] bg-[rgba(136,136,136,0.25)]"></div>
+                        <button
+                          onClick={() => moveTimelineEvent(item._id, 'down')}
+                          disabled={timeline.indexOf(item) === timeline.length - 1}
+                          className="p-2 text-[#888888] hover:text-[#E6E6E6] hover:bg-white/5 transition-colors disabled:opacity-20"
+                          title="Move Down"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                      </div>
                       <button
                         onClick={() => handleDeleteTimelineEvent(item._id)}
-                        className="p-2 text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                        className="p-2 text-red-500 hover:bg-red-500/10 rounded transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

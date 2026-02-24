@@ -65,11 +65,18 @@ export default function ContactManager() {
   const [toast, setToast] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const [deleteConfig, setDeleteConfig] = useState<{
-    type: 'office' | 'field' | null;
-    id: any;
-  } | null>(null);
+  const [deleteState, setDeleteState] = useState<{
+    type: 'office' | 'field' | 'submission' | null;
+    id?: string | number;
+  }>({
+    type: null
+  });
 
+  const [deleting, setDeleting] = useState(false);
+
+
+  const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
+  const [showSubModal, setShowSubModal] = useState(false);
 
   useEffect(() => {
     // fetch contact form settings from backend
@@ -288,8 +295,8 @@ export default function ContactManager() {
     }
   };
 
-  const handleDeleteOffice = (id: any) => {
-    setDeleteConfig({ type: 'office', id });
+  const openDeleteOffice = (id: string | number) => {
+    setDeleteState({ type: 'office', id });
   };
 
 
@@ -340,40 +347,51 @@ export default function ContactManager() {
     setHasUnsavedChanges(true);
   };
 
-  const handleDeleteField = (id: any) => {
-    setDeleteConfig({ type: 'field', id });
+  const openDeleteField = (id: string | number) => {
+    setDeleteState({ type: 'field', id });
   };
 
   const confirmDelete = async () => {
-    if (!deleteConfig) return;
+    if (!deleteState.type || !deleteState.id) return;
 
-    if (deleteConfig.type === 'office') {
-      setOffices(offices.filter(o => o.id !== deleteConfig.id));
-      setToast('Office location deleted!');
-    }
+    try {
+      setDeleting(true);
 
-    if (deleteConfig.type === 'field') {
-      setFormFields(formFields.filter(f => f.id !== deleteConfig.id));
-      setHasUnsavedChanges(true);
-      setToast('Field deleted!');
-    }
-
-    if ((deleteConfig as any).type === 'submission') {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/contact-form/submissions/${deleteConfig.id}`, { method: 'DELETE' });
-        if (res.ok) {
-          setSubmissions(submissions.filter(s => s._id !== deleteConfig.id));
-          setToast('Submission deleted!');
-        }
-      } catch (err) {
-        setToast('Error deleting submission');
+      if (deleteState.type === 'office') {
+        setOffices(prev => prev.filter(o => o.id !== deleteState.id));
+        setToast('Office location deleted!');
       }
+
+      if (deleteState.type === 'field') {
+        setFormFields(prev => prev.filter(f => f.id !== deleteState.id));
+        setHasUnsavedChanges(true);
+        setToast('Field deleted!');
+      }
+
+      if (deleteState.type === 'submission') {
+        const res = await fetch(
+          `${API_BASE_URL}/api/contact-form/submissions/${deleteState.id}`,
+          { method: 'DELETE' }
+        );
+
+        if (res.ok) {
+          setSubmissions(prev =>
+            prev.filter(s => s._id !== deleteState.id)
+          );
+          setToast('Submission deleted!');
+        } else {
+          throw new Error('Failed to delete submission');
+        }
+      }
+
+    } catch (err) {
+      setToast('Error deleting item');
+    } finally {
+      setDeleting(false);
+      setDeleteState({ type: null });
+      setTimeout(() => setToast(''), 3000);
     }
-
-    setDeleteConfig(null);
-    setTimeout(() => setToast(''), 3000);
   };
-
   const updateSubmissionStatus = async (id: string, status: string) => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/contact-form/submissions/${id}/status`, {
@@ -774,7 +792,7 @@ export default function ContactManager() {
                         </div>
                       </label>
                       <button
-                        onClick={() => handleDeleteField(field.id)}
+                        onClick={() => openDeleteField(field.id)}
                         className="p-2 text-red-400 hover:bg-red-500/20 rounded transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -925,8 +943,8 @@ export default function ContactManager() {
                         </label>
                         {office.mapEmbed && (
                           <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${office.mapEmbed.includes('/embed')
-                              ? 'bg-green-500/10 text-green-500'
-                              : 'bg-red-500/10 text-red-500'
+                            ? 'bg-green-500/10 text-green-500'
+                            : 'bg-red-500/10 text-red-500'
                             }`}>
                             {office.mapEmbed.includes('/embed') ? '✓ Valid Embed Link' : '⚠ Invalid Link Type'}
                           </span>
@@ -958,7 +976,7 @@ export default function ContactManager() {
                         Done Editing
                       </button>
                       <button
-                        onClick={() => handleDeleteOffice(office.id)}
+                        onClick={() => openDeleteOffice(office.id)}
                         className="px-4 py-2 bg-red-500/20 text-red-500 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1053,45 +1071,64 @@ export default function ContactManager() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[rgba(136,136,136,0.1)]">
-                  {submissions.map((sub) => (
-                    <tr key={sub._id} className="hover:bg-[rgba(136,136,136,0.02)] transition-colors group">
-                      <td className="px-6 py-4 text-sm font-medium text-[#E6E6E6]">{sub.name}</td>
-                      <td className="px-6 py-4 text-sm">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[#888888] flex items-center gap-2"><Mail className="w-3 h-3" /> {sub.email}</span>
-                          <span className="text-[#888888] flex items-center gap-2"><Phone className="w-3 h-3" /> {sub.mobile}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#888888]">
-                        <p className="line-clamp-2 max-w-xs">{sub.message}</p>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#888888]">
-                        {new Date(sub.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        <select
-                          value={sub.status}
-                          onChange={(e) => updateSubmissionStatus(sub._id, e.target.value)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold outline-none border-none cursor-pointer transition-all ${sub.status === 'New' ? 'bg-blue-500/10 text-blue-500' :
-                            sub.status === 'Replied' ? 'bg-green-500/10 text-green-500' :
-                              'bg-gray-500/10 text-gray-400'
-                            }`}
-                        >
-                          <option value="New" className="bg-[#16181D]">New</option>
-                          <option value="Replied" className="bg-[#16181D]">Replied</option>
-                          <option value="Closed" className="bg-[#16181D]">Closed</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => setDeleteConfig({ type: 'submission' as any, id: sub._id })}
-                          className="p-2 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {submissions.map((sub) => {
+                    // Attempt to find mobile in raw data if missing
+                    const findMobile = () => {
+                      if (sub.mobile && sub.mobile !== 'N/A') return sub.mobile;
+                      const raw = sub.additionalInfo || {};
+                      const mobileKey = Object.keys(raw).find(k => k.toLowerCase().includes('mobile') || k.toLowerCase().includes('phone') || k.toLowerCase().includes('tel') || k.toLowerCase().includes('contact'));
+                      return mobileKey ? raw[mobileKey] : 'N/A';
+                    };
+
+                    return (
+                      <tr key={sub._id} className="hover:bg-[rgba(136,136,136,0.02)] transition-colors group">
+                        <td className="px-6 py-4 text-sm font-medium text-[#E6E6E6]">{sub.name}</td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[#888888] flex items-center gap-2"><Mail className="w-3 h-3" /> {sub.email}</span>
+                            <span className="text-[#888888] flex items-center gap-2"><Phone className="w-3 h-3" /> {findMobile()}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#888888]">
+                          <p className="line-clamp-2 max-w-xs">{sub.message}</p>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#888888]">
+                          {new Date(sub.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <select
+                            value={sub.status}
+                            onChange={(e) => updateSubmissionStatus(sub._id, e.target.value)}
+                            className={`px-3 py-1 rounded-full text-xs font-semibold outline-none border-none cursor-pointer transition-all ${sub.status === 'New' ? 'bg-blue-500/10 text-blue-500' :
+                              sub.status === 'Replied' ? 'bg-green-500/10 text-green-500' :
+                                'bg-gray-500/10 text-gray-400'
+                              }`}
+                          >
+                            <option value="New" className="bg-[#16181D]">New</option>
+                            <option value="Replied" className="bg-[#16181D]">Replied</option>
+                            <option value="Closed" className="bg-[#16181D]">Closed</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => { setSelectedSubmission(sub); setShowSubModal(true); }}
+                              className="p-2 text-blue-400/50 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-all"
+                              title="View All Data"
+                            >
+                              {/* <Eye className="w-4 h-4" /> */}
+                            </button>
+                            <button
+                              onClick={() => setDeleteState({ type: 'submission', id: sub._id })}
+                              className="p-2 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {submissions.length === 0 && (
                     <tr>
                       <td colSpan={6} className="px-6 py-12 text-center text-[#888888] italic">
@@ -1112,14 +1149,12 @@ export default function ContactManager() {
           {toast}
         </div>
       )}
-      {deleteConfig && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in pointer-events-auto">
+      {deleteState.type && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-[#16181D] border border-red-500/30 shadow-2xl rounded-lg p-6 w-96 animate-fade-in">
 
             <h3 className="text-base font-semibold text-white mb-2">
-              {deleteConfig.type === 'office'
-                ? 'Delete this office location?'
-                : 'Delete this form field?'}
+              Are you sure you want to delete this {deleteState.type}?
             </h3>
 
             <p className="text-sm text-[#888888] mb-5">
@@ -1128,17 +1163,19 @@ export default function ContactManager() {
 
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => setDeleteConfig(null)}
-                className="px-4 py-2 text-sm rounded bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition"
+                onClick={() => setDeleteState({ type: null })}
+                className="px-4 py-2 text-[#888888] hover:text-white transition-colors"
+                disabled={deleting}
               >
                 Cancel
               </button>
 
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600 transition"
+                disabled={deleting}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
               >
-                Delete
+                {deleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
 

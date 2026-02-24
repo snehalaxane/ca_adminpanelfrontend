@@ -11,7 +11,7 @@ export default function TeamManager() {
   const [showModal, setShowModal] = useState(false);
   const [editingMember, setEditingMember] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-const [deleting, setDeleting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -29,10 +29,43 @@ const [deleting, setDeleting] = useState(false);
     bio: ''
   });
   const [toast, setToast] = useState('');
+  const [introData, setIntroData] = useState({
+    title: 'The Team',
+    description: 'Meet our experienced & dedicated Chartered Accountant professionals'
+  });
+  const [savingIntro, setSavingIntro] = useState(false);
 
   useEffect(() => {
     fetchTeamMembers();
+    fetchTeamIntro();
   }, []);
+
+  const fetchTeamIntro = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/team-intro`);
+      if (res.data) {
+        setIntroData({
+          title: res.data.title || 'The Team',
+          description: res.data.description || 'Meet our experienced & dedicated Chartered Accountant professionals'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching team intro:', error);
+    }
+  };
+
+  const handleSaveIntro = async () => {
+    setSavingIntro(true);
+    try {
+      await axios.put(`${API_BASE_URL}/api/team-intro`, introData);
+      showToast('Team header updated successfully!');
+    } catch (error) {
+      console.error('Error saving team intro:', error);
+      showToast('Error saving team header');
+    } finally {
+      setSavingIntro(false);
+    }
+  };
 
   const fetchTeamMembers = async () => {
     try {
@@ -144,21 +177,21 @@ const [deleting, setDeleting] = useState(false);
   };
 
   const confirmDelete = async () => {
-  if (!deleteId) return;
+    if (!deleteId) return;
 
-  setDeleting(true);
-  try {
-    await axios.delete(`${API_BASE_URL}/api/team-members/${deleteId}`);
-    showToast('Team member deleted successfully!');
-    fetchTeamMembers();
-  } catch (error) {
-    console.error('Error deleting team member:', error);
-    showToast('Error deleting team member');
-  } finally {
-    setDeleting(false);
-    setDeleteId(null);
-  }
-};
+    setDeleting(true);
+    try {
+      await axios.delete(`${API_BASE_URL}/api/team-members/${deleteId}`);
+      showToast('Team member deleted successfully!');
+      fetchTeamMembers();
+    } catch (error) {
+      console.error('Error deleting team member:', error);
+      showToast('Error deleting team member');
+    } finally {
+      setDeleting(false);
+      setDeleteId(null);
+    }
+  };
 
 
   const showToast = (message: string) => {
@@ -205,6 +238,46 @@ const [deleting, setDeleting] = useState(false);
           <Plus className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:rotate-90" />
           <span className="relative z-10">Add Team Member</span>
         </button>
+      </div>
+
+      {/* Team Intro Section */}
+      <div className="mb-8 p-6 bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-lg border border-[rgba(136,136,136,0.25)] shadow-xl animate-fade-in">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Edit className="w-5 h-5 text-[#022683]" />
+            Header Section
+          </h2>
+          <button
+            onClick={handleSaveIntro}
+            disabled={savingIntro}
+            className="flex items-center gap-2 px-4 py-2 bg-[#022683] hover:bg-[#033aa0] text-white rounded-lg transition-all duration-300 disabled:opacity-50"
+          >
+            {savingIntro ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <span>{savingIntro ? 'Saving...' : 'Save Header Changes'}</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-[#888888] mb-2">Page Title</label>
+            <input
+              type="text"
+              value={introData.title}
+              onChange={(e) => setIntroData({ ...introData, title: e.target.value })}
+              className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg text-[#E6E6E6] focus:ring-2 focus:ring-[#022683] outline-none"
+              placeholder="e.g., The Team"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#888888] mb-2">Description</label>
+            <textarea
+              value={introData.description}
+              onChange={(e) => setIntroData({ ...introData, description: e.target.value })}
+              className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg text-[#E6E6E6] focus:ring-2 focus:ring-[#022683] outline-none h-11 resize-none"
+              placeholder="e.g., Meet our experienced & dedicated professionals"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -278,7 +351,7 @@ const [deleting, setDeleting] = useState(false);
               <Eye className="w-5 h-5 text-[#888888]" />
               Card Preview
             </h3>
-            
+
 
             {teamMembers.filter(m => m.showOnHome)[0] && (
               <div className="mb-6 p-4 bg-gradient-to-r from-[#888888] to-[#022683] rounded-lg text-white shadow-lg animate-fade-in transition-all duration-300 hover:scale-105">
@@ -292,11 +365,11 @@ const [deleting, setDeleting] = useState(false);
                 <h4 className="font-bold text-white mb-1">
                   {teamMembers.filter(m => m.showOnHome)[0].name}
                 </h4>
-              <p className="text-sm text-white/90 mb-1">
+                <p className="text-sm text-white/90 mb-1">
 
                   {teamMembers.filter(m => m.showOnHome)[0].designation}
                 </p>
-               <p className="text-xs text-white/70">
+                <p className="text-xs text-white/70">
 
                   {teamMembers.filter(m => m.showOnHome)[0].city}
                 </p>
@@ -515,9 +588,9 @@ const [deleting, setDeleting] = useState(false);
         </div>
       )}
       {deleteId && (
-<div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
 
-  <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24]
+          <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24]
     border border-red-500/30
     shadow-2xl
     rounded-xl
@@ -526,36 +599,36 @@ const [deleting, setDeleting] = useState(false);
     max-w-md
     animate-scale-in">
 
-    <h3 className="text-lg font-semibold text-white mb-3">
-      Delete this team member?
-    </h3>
+            <h3 className="text-lg font-semibold text-white mb-3">
+              Delete this team member?
+            </h3>
 
-    <p className="text-sm text-[#888888] mb-6">
-      This action cannot be undone.
-    </p>
+            <p className="text-sm text-[#888888] mb-6">
+              This action cannot be undone.
+            </p>
 
-    <div className="flex justify-end gap-3">
-      <button
-        onClick={() => setDeleteId(null)}
-        disabled={deleting}
-        className="px-4 py-2 rounded-lg bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition-all"
-      >
-        Cancel
-      </button>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteId(null)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition-all"
+              >
+                Cancel
+              </button>
 
-      <button
-        onClick={confirmDelete}
-        disabled={deleting}
-        className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all disabled:opacity-50"
-      >
-        {deleting ? "Deleting..." : "Delete"}
-      </button>
-    </div>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
 
-  </div>
-</div>
+          </div>
+        </div>
 
-)}
+      )}
 
     </div>
   );

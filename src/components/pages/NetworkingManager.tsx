@@ -17,9 +17,13 @@ export default function NetworkingManager() {
   const [associates, setAssociates] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [toast, setToast] = useState('');
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleteType, setDeleteType] = useState<'associate' | 'submission' | null>(null);
+  const [deleteState, setDeleteState] = useState<{
+    type: 'associate' | 'submission' | null;
+    id?: string;
+  }>({ type: null });
+
   const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
     fetchContent();
@@ -85,35 +89,37 @@ export default function NetworkingManager() {
     }
   };
 
-  const deleteAssociate = (id: string) => {
-    setDeleteId(id);
-    setDeleteType('associate');
+  const openDeleteAssociate = (id: string) => {
+    setDeleteState({ type: 'associate', id });
   };
 
-  const deleteSubmission = (id: string) => {
-    setDeleteId(id);
-    setDeleteType('submission');
+  const openDeleteSubmission = (id: string) => {
+    setDeleteState({ type: 'submission', id });
   };
 
   const confirmDelete = async () => {
-    if (!deleteId || !deleteType) return;
+    if (!deleteState.id || !deleteState.type) return;
+
     setDeleting(true);
+
     try {
-      if (deleteType === 'associate') {
-        await axios.delete(`${API_BASE_URL}/api/networking-associates/${deleteId}`);
-        setAssociates(associates.filter(a => a._id !== deleteId));
+      if (deleteState.type === 'associate') {
+        await axios.delete(`${API_BASE_URL}/api/networking-associates/${deleteState.id}`);
+        setAssociates(prev => prev.filter(a => a._id !== deleteState.id));
         setToast('Associate deleted');
-      } else {
-        await axios.delete(`${API_BASE_URL}/api/networking-submissions/${deleteId}`);
-        setSubmissions(submissions.filter(s => s._id !== deleteId));
+      }
+
+      if (deleteState.type === 'submission') {
+        await axios.delete(`${API_BASE_URL}/api/networking-submissions/${deleteState.id}`);
+        setSubmissions(prev => prev.filter(s => s._id !== deleteState.id));
         setToast('Submission deleted');
       }
+
     } catch (err) {
-      setToast(`Error deleting ${deleteType}`);
+      setToast(`Error deleting ${deleteState.type}`);
     } finally {
       setDeleting(false);
-      setDeleteId(null);
-      setDeleteType(null);
+      setDeleteState({ type: null });
       setTimeout(() => setToast(''), 3000);
     }
   };
@@ -314,7 +320,7 @@ export default function NetworkingManager() {
                     </div>
                   </label>
                   <button
-                    onClick={() => deleteAssociate(associate._id)}
+                    onClick={() => openDeleteAssociate(associate._id)}
                     className="p-2 text-red-500 hover:bg-red-500/10 rounded transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -365,7 +371,7 @@ export default function NetworkingManager() {
                       <td className="px-4 py-3 text-sm">
                         {sub.profileFile ? (
                           <a href={`${API_BASE_URL}/${sub.profileFile}`} target="_blank" className="text-[#0077b5] hover:text-[#005a8c] hover:underline flex items-center gap-1 transition-colors">
-                            <Download className="w-3 h-3" /> View CV
+                            <Download className="w-3 h-3" /> View
                           </a>
                         ) : <span className="text-[#888888]">No File</span>}
                       </td>
@@ -385,7 +391,7 @@ export default function NetworkingManager() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
-                          onClick={() => deleteSubmission(sub._id)}
+                          onClick={() => openDeleteSubmission(sub._id)}
                           className="p-1.5 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                           title="Delete Submission"
                         >
@@ -474,27 +480,38 @@ export default function NetworkingManager() {
         </div>
       )}
 
-      {deleteId && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] border border-red-500/30 shadow-2xl rounded-xl p-8 w-full max-w-md animate-scale-in text-left">
-            <h3 className="text-xl font-bold text-white mb-3">
-              Delete {deleteType === 'associate' ? 'Associate Firm' : 'Submission'}?
+      {deleteState.type && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] 
+      border border-red-500/30 
+      shadow-2xl 
+      rounded-xl 
+      p-8 
+      w-full 
+      max-w-md 
+      animate-scale-in">
+
+            <h3 className="text-lg font-semibold text-white mb-3">
+              Confirm Deletion
             </h3>
-            <p className="text-[#888888] mb-8 leading-relaxed">
-              This action cannot be undone. Are you sure you want to permanently remove this {deleteType === 'associate' ? 'associate' : 'submission'}?
+
+            <p className="text-sm text-[#888888] mb-6">
+              This action cannot be undone.
             </p>
+
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => { setDeleteId(null); setDeleteType(null); }}
+                onClick={() => setDeleteState({ type: null })}
                 disabled={deleting}
-                className="px-6 py-2 rounded-lg bg-[rgba(136,136,136,0.1)] text-white hover:bg-[rgba(136,136,136,0.2)] transition-all font-semibold"
+                className="px-4 py-2 rounded-lg bg-[rgba(136,136,136,0.2)] text-white hover:bg-[rgba(136,136,136,0.3)] transition-all"
               >
                 Cancel
               </button>
+
               <button
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all font-bold shadow-lg shadow-red-600/20 flex items-center gap-2"
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-all font-medium"
               >
                 {deleting ? "Deleting..." : "Delete Permanently"}
               </button>
