@@ -688,8 +688,21 @@ export default function CareersManager() {
                           <input
                             type="text"
                             value={category.name}
-                            onChange={(e) =>
-                              updateCategoryName(category._id!, e.target.value)
+                            onChange={(e) => {
+                              const value = e.target.value;
+
+                              // Update UI only
+                              setJobCategories(prev =>
+                                prev.map(cat =>
+                                  cat._id === category._id
+                                    ? { ...cat, name: value }
+                                    : cat
+                                )
+                              );
+                            }}
+
+                            onBlur={() =>
+                              updateCategoryName(category._id!, category.name)
                             }
                             className="flex-1 px-3 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg text-[#E6E6E6] focus:ring-2 focus:ring-[#022683] outline-none"
                           />

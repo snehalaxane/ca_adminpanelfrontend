@@ -4,6 +4,12 @@ import { Plus, Edit, Trash2, GripVertical, Save, Eye, Upload, Loader2, X } from 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const resolveImageUrl = (url: string | undefined) => {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('data:')) return url;
+  return `${API_BASE_URL.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
+};
+
 export default function TeamManager() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
@@ -317,7 +323,7 @@ export default function TeamManager() {
                 <div className="w-20 h-20 bg-gradient-to-br from-[#0F1115] to-[#16181D] rounded-lg overflow-hidden flex-shrink-0 border border-[rgba(136,136,136,0.25)] hover:border-[#888888] transition-all duration-300">
                   {member.photo ? (
                     <img
-                      src={member.photo.startsWith('http') || member.photo.startsWith('data:') ? member.photo : `${API_BASE_URL}${member.photo}`}
+                      src={resolveImageUrl(member.photo)}
                       alt={member.name}
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                     />
@@ -383,7 +389,7 @@ export default function TeamManager() {
               <div className="mb-6 p-4 bg-gradient-to-r from-[#888888] to-[#022683] rounded-lg text-white shadow-lg animate-fade-in transition-all duration-300 hover:scale-105">
                 <div className="w-full aspect-square bg-gradient-to-br from-[#0F1115] to-[#16181D] rounded-lg mb-3 overflow-hidden border border-[rgba(136,136,136,0.25)]">
                   <img
-                    src={teamMembers.filter(m => m.showOnHome)[0].photo.startsWith('http') || teamMembers.filter(m => m.showOnHome)[0].photo.startsWith('data:') ? teamMembers.filter(m => m.showOnHome)[0].photo : `${API_BASE_URL}${teamMembers.filter(m => m.showOnHome)[0].photo}`}
+                    src={resolveImageUrl(teamMembers.filter(m => m.showOnHome)[0].photo)}
                     alt=""
                     className="w-full h-full object-cover"
                   />

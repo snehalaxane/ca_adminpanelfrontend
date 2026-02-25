@@ -35,6 +35,8 @@ const iconMap: Record<string, any> = {
 
 export default function SelectClientsManager() {
   const [sectors, setSectors] = useState<any[]>([]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
   const [introData, setIntroData] = useState({
     title: 'Select Clients',
     subtitle: 'Serving clients across diverse industries with trust and commitment.',
@@ -489,13 +491,69 @@ export default function SelectClientsManager() {
       )}
 
       {deleteSectorId && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100]">
-          <div className="bg-[#16181D] p-8 rounded-2xl border border-[rgba(136,136,136,0.25)] max-w-sm w-full">
-            <h3 className="text-xl font-bold text-white mb-4">Delete Sector?</h3>
-            <p className="text-[#888888] mb-6">This action cannot be undone. All industries within this sector will be lost.</p>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+
+          {/* Modal Box */}
+          <div
+            className="relative 
+                 bg-gradient-to-br from-[#16181D] to-[#1a1d24] 
+                 border border-red-500/30
+                 shadow-[0_20px_60px_rgba(0,0,0,0.6)] 
+                 rounded-2xl 
+                 p-8 
+                 w-full 
+                 max-w-md 
+                 animate-[scaleIn_.25s_ease-out]"
+          >
+
+            {/* Top Red Glow */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-32 bg-red-500/20 blur-3xl rounded-full" />
+
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-white mb-3">
+              Delete this item?
+            </h3>
+
+            {/* Description */}
+            <p className="text-sm text-[#888888] mb-6 leading-relaxed">
+              This action will permanently remove this record from the database.
+              <span className="text-red-400 font-medium">
+                {" "}This cannot be undone.
+              </span>
+            </p>
+
+            {/* Buttons */}
             <div className="flex justify-end gap-3">
-              <button onClick={() => setDeleteSectorId(null)} className="px-4 py-2 text-white hover:bg-white/5 rounded-lg">Cancel</button>
-              <button onClick={confirmDeleteSector} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
+
+              {/* Cancel */}
+              <button
+                onClick={() => setDeleteSectorId(null)}
+                disabled={deleting}
+                className="px-5 py-2 rounded-lg 
+                     bg-[rgba(136,136,136,0.15)] 
+                     text-white 
+                     hover:bg-[rgba(136,136,136,0.25)] 
+                     transition-all duration-200"
+              >
+                Cancel
+              </button>
+
+              {/* Delete */}
+              <button
+                onClick={confirmDeleteSector}
+                disabled={deleting}
+                className="px-6 py-2 rounded-lg 
+                     bg-red-500 
+                     text-white 
+                     hover:bg-red-600 
+                     transition-all duration-200 
+                     disabled:opacity-50 
+                     flex items-center gap-2"
+              >
+                {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+
             </div>
           </div>
         </div>
