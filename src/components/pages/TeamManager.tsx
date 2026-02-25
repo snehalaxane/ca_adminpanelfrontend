@@ -233,12 +233,21 @@ export default function TeamManager() {
         showToast('Image size should be less than 2MB');
         return;
       }
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, photo: reader.result as string });
+
+      // Check dimensions
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        if (img.width !== 352 || img.height !== 440) {
+          showToast(`Notice: Image is ${img.width}x${img.height}. Recommended is 352x440 for best fit.`);
+        }
+        setSelectedFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData({ ...formData, photo: reader.result as string });
+        };
+        reader.readAsDataURL(file);
       };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -546,6 +555,7 @@ export default function TeamManager() {
                       </button>
                     )}
                   </div>
+                  <p className="text-[10px] text-[#888888] font-medium">Recommended size: 352x440</p>
 
                   {formData.photo && (
                     <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-[rgba(136,136,136,0.25)] bg-[#0F1115]">

@@ -96,7 +96,17 @@ export default function GalleryManager() {
         setTimeout(() => setToast(''), 3000);
         return;
       }
-      setUploadingFile(file);
+
+      // Check dimensions
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        if (img.width !== 370 || img.height !== 264) {
+          setToast(`Notice: Image is ${img.width}x${img.height}. Recommended is 370x264 for best fit.`);
+          setTimeout(() => setToast(''), 4000);
+        }
+        setUploadingFile(file);
+      };
     }
   };
 
@@ -455,10 +465,12 @@ export default function GalleryManager() {
                 >
                   {uploadingFile ? 'Change Image' : 'Select Image'}
                 </label>
-                {uploadingFile && (
+                {uploadingFile ? (
                   <p className="mt-4 text-sm text-green-400 font-medium flex items-center justify-center gap-1">
                     <ImageIcon className="w-4 h-4" /> {uploadingFile.name}
                   </p>
+                ) : (
+                  <p className="text-xs text-[#888888] mt-2">Max 5MB | Recommended: 370x264</p>
                 )}
               </div>
 

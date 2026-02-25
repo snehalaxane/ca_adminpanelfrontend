@@ -192,7 +192,15 @@ export default function BlogPostsManager() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadingFile(file);
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        if (img.width !== 450 || img.height !== 256) {
+          setToast(`Notice: Image is ${img.width}x${img.height}. Recommended is 450x256 for best fit.`);
+          setTimeout(() => setToast(''), 4000);
+        }
+        setUploadingFile(file);
+      };
     }
   };
 
@@ -615,7 +623,7 @@ export default function BlogPostsManager() {
                         {uploadingFile.name}
                       </p>
                     )}
-                    <p className="text-xs text-[#888888] mt-2">Images only, max 5MB</p>
+                    <p className="text-xs text-[#888888] mt-2">Images only, max 5MB | Recommended size: 450x256</p>
                   </div>
 
                   {/* URL Input */}
