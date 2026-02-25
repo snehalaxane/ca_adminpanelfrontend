@@ -244,7 +244,7 @@ export default function TeamManager() {
         setSelectedFile(file);
         const reader = new FileReader();
         reader.onloadend = () => {
-          setFormData({ ...formData, photo: reader.result as string });
+          setFormData(prev => ({ ...prev, photo: reader.result as string }));
         };
         reader.readAsDataURL(file);
       };
@@ -559,7 +559,7 @@ export default function TeamManager() {
 
                   {formData.photo && (
                     <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-[rgba(136,136,136,0.25)] bg-[#0F1115]">
-                      <img src={formData.photo} alt="Preview" className="w-full h-full object-cover" />
+                      <img src={resolveImageUrl(formData.photo)} alt="Preview" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
                         <p className="text-[10px] text-white font-bold">Preview</p>
                       </div>
