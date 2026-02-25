@@ -70,8 +70,8 @@ export default function Login({ onLogin }: LoginProps) {
       <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-lg shadow-2xl w-full max-w-md p-8 border border-[rgba(136,136,136,0.25)]">
         <div className="text-center mb-8">
 
-          {/* Lock + Logo Row */}
-          <div className="flex items-center justify-center gap-4 mb-6">
+          {/* Lock above Logo Stack */}
+          <div className="flex flex-col items-center justify-center gap-4 mb-6">
 
             {/* Lock Circle */}
             <div className="w-16 h-16 bg-gradient-to-br from-[#022683] to-[#033aa0] rounded-full flex items-center justify-center shadow-lg">
@@ -82,7 +82,7 @@ export default function Login({ onLogin }: LoginProps) {
             <img
               src={logo}
               alt="Raju & Prasad Logo"
-              className="h-12 object-contain -ml-2"
+              className="h-12 object-contain"
             />
 
           </div>
@@ -92,9 +92,9 @@ export default function Login({ onLogin }: LoginProps) {
             Admin Panel
           </h1>
 
-          <p className="text-[#888888]">
+          {/* <p className="text-[#888888]">
             Raju & Prasad – Chartered Accountants
-          </p>
+          </p> */}
 
         </div>
 
