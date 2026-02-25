@@ -18,10 +18,12 @@ interface SettingsType {
   googleAnalytics: string;
   facebookPixel: string;
   logoUrl: string;
+  emailPassword?: string;
+  emailSecure?: boolean;
 }
 
 export default function Settings() {
-const [settings, setSettings] = useState<SettingsType>({
+  const [settings, setSettings] = useState<SettingsType>({
     websiteStatus: 'Live',
     siteName: 'Raju & Prasad – Chartered Accountants',
     tagline: 'Excellence in Financial Services',
@@ -34,7 +36,9 @@ const [settings, setSettings] = useState<SettingsType>({
     maintenanceMode: false,
     googleAnalytics: 'UA-XXXXXXXXX-X',
     facebookPixel: '',
-     logoUrl: '' // 👈 added
+    logoUrl: '',
+    emailPassword: '',
+    emailSecure: false
   });
 
   const [toast, setToast] = useState('');
@@ -53,12 +57,12 @@ const [settings, setSettings] = useState<SettingsType>({
         axios.get(`${API_BASE_URL}/api/settings/email`)
       ]);
 
-     setSettings(prev => ({
-  ...prev,
-  ...generalRes.data,
-  ...themeRes.data,
-  ...emailRes.data
-}));
+      setSettings(prev => ({
+        ...prev,
+        ...generalRes.data,
+        ...themeRes.data,
+        ...emailRes.data
+      }));
 
     } catch (err) {
       console.error('Error fetching settings:', err);
@@ -92,8 +96,8 @@ const [settings, setSettings] = useState<SettingsType>({
 
   const handleSaveEmail = async () => {
     try {
-      const { emailHost, emailPort, emailUser, emailFrom } = settings;
-      await axios.put(`${API_BASE_URL}/api/settings/email`, { emailHost, emailPort, emailUser, emailFrom });
+      const { emailHost, emailPort, emailUser, emailFrom, emailPassword, emailSecure } = settings;
+      await axios.put(`${API_BASE_URL}/api/settings/email`, { emailHost, emailPort, emailUser, emailFrom, emailPassword, emailSecure });
       setToast('Email configuration saved!');
     } catch (err) {
       setToast('Error saving email config');
@@ -155,10 +159,10 @@ const [settings, setSettings] = useState<SettingsType>({
       }
 
 
-      const message = clearedItems.length > 0 
+      const message = clearedItems.length > 0
         ? `Cache cleared`
         : 'No cache found to clear';
-      
+
       setToast(message);
       console.log('✅ Cache clear completed:', message);
     } catch (err) {
@@ -168,33 +172,33 @@ const [settings, setSettings] = useState<SettingsType>({
     setTimeout(() => setToast(''), 4000);
   };
 
-  
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append("logo", file);
+    const formData = new FormData();
+    formData.append("logo", file);
 
-  try {
-    const res = await axios.post(
-      `${API_BASE_URL}/api/settings/general/logo`,
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
+    try {
+      const res = await axios.post(
+        `${API_BASE_URL}/api/settings/general/logo`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-    setSettings(prev => ({
-      ...prev,
-      logoUrl: res.data.logoUrl
-    }));
+      setSettings(prev => ({
+        ...prev,
+        logoUrl: res.data.logoUrl
+      }));
 
-    setToast("Logo updated successfully!");
-  } catch (err) {
-    setToast("Error uploading logo");
-  }
+      setToast("Logo updated successfully!");
+    } catch (err) {
+      setToast("Error uploading logo");
+    }
 
-  setTimeout(() => setToast(''), 3000);
-};
+    setTimeout(() => setToast(''), 3000);
+  };
 
 
   return (
@@ -264,24 +268,24 @@ const [settings, setSettings] = useState<SettingsType>({
               </div>
 
               <div>
-  <label className="block text-sm font-medium text-[#888888] mb-2">
-    Website Logo
-  </label>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  Website Logo
+                </label>
 
-  {settings.logoUrl && (
-    <img
-      src={`${API_BASE_URL}${settings.logoUrl}`}
-      alt="Logo Preview"
-      className="h-16 mb-3 object-contain bg-[#0F1115] p-2 rounded"
-    />
-  )}
+                {settings.logoUrl && (
+                  <img
+                    src={`${API_BASE_URL}${settings.logoUrl}`}
+                    alt="Logo Preview"
+                    className="h-16 mb-3 object-contain bg-[#0F1115] p-2 rounded"
+                  />
+                )}
 
-  <input
-    type="file"
-    accept="image/*"
-    onChange={handleLogoUpload}
-  />
-</div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                />
+              </div>
 
 
               {/* <div>
@@ -443,6 +447,33 @@ const [settings, setSettings] = useState<SettingsType>({
                   className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-transparent outline-none transition-all text-[#E6E6E6]"
                   placeholder="Raju & Prasad"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#888888] mb-2">
+                  SMTP Password
+                </label>
+                <input
+                  type="password"
+                  value={settings.emailPassword}
+                  onChange={(e) => setSettings({ ...settings, emailPassword: e.target.value })}
+                  className="w-full px-4 py-2 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-transparent outline-none transition-all text-[#E6E6E6]"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-3 cursor-pointer group mt-4">
+                  <input
+                    type="checkbox"
+                    checked={settings.emailSecure}
+                    onChange={(e) => setSettings({ ...settings, emailSecure: e.target.checked })}
+                    className="w-4 h-4 text-[#022683] border-[rgba(136,136,136,0.25)] rounded focus:ring-[#022683] transition-all bg-[#0F1115]"
+                  />
+                  <span className="text-sm text-[#888888] group-hover:text-[#E6E6E6] transition-colors">
+                    Secure Connection (SSL/TLS - use for Port 465)
+                  </span>
+                </label>
               </div>
             </div>
           </div>

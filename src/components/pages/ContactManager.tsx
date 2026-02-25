@@ -9,8 +9,8 @@ export default function ContactManager() {
     pageSubtitle: "Send us your request and we'll get back to you at the earliest.",
     heading: 'Get in Touch',
     subheading: 'We would love to hear from you. Send us a message and we will respond as soon as possible.',
-    callNow: '+91 40 2331 6023',
-    emailUs: 'info@rajuprasad.com',
+    callNow: '',
+    emailUs: '',
     enabled: true
   });
 
@@ -22,41 +22,7 @@ export default function ContactManager() {
     { id: 5, label: 'Message', fieldType: 'textarea', required: true, enabled: true, order: 5, placeholder: 'How can we help you?' }
   ]);
 
-  const [offices, setOffices] = useState([
-    {
-      id: 1,
-      cityName: 'Mumbai',
-      officeName: 'Head Office - Mumbai',
-      address: '123 Marine Drive, Mumbai - 400001, Maharashtra, India',
-      phone: '+91 22 1234 5678',
-      email: 'mumbai@rajuprasad.com',
-      mapEmbed: 'https://maps.google.com/embed?pb=!1m18!1m12!1m3!1d3774.0',
-      enabled: true,
-      order: 1
-    },
-    {
-      id: 2,
-      cityName: 'Delhi',
-      officeName: 'Delhi Branch',
-      address: '456 Connaught Place, New Delhi - 110001, Delhi, India',
-      phone: '+91 11 2345 6789',
-      email: 'delhi@rajuprasad.com',
-      mapEmbed: 'https://maps.google.com/embed?pb=!1m18!1m12!1m3!1d3774.1',
-      enabled: true,
-      order: 2
-    },
-    {
-      id: 3,
-      cityName: 'Bangalore',
-      officeName: 'Bangalore Office',
-      address: '789 MG Road, Bangalore - 560001, Karnataka, India',
-      phone: '+91 80 3456 7890',
-      email: 'bangalore@rajuprasad.com',
-      mapEmbed: 'https://maps.google.com/embed?pb=!1m18!1m12!1m3!1d3774.2',
-      enabled: true,
-      order: 3
-    }
-  ]);
+  const [offices, setOffices] = useState<any[]>([]);
 
   const [editingOfficeId, setEditingOfficeId] = useState<string | number | null>(null);
   const [editingFieldId, setEditingFieldId] = useState<string | number | null>(null);

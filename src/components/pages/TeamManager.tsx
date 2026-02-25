@@ -12,6 +12,7 @@ export default function TeamManager() {
   const [editingMember, setEditingMember] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -146,6 +147,7 @@ export default function TeamManager() {
       showOnHome: false,
       showOnTeam: true
     });
+    setSelectedFile(null);
     setFormErrors({
       name: '',
       designation: '',
@@ -159,11 +161,30 @@ export default function TeamManager() {
 
     setLoading(true);
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('designation', formData.designation);
+      formDataToSend.append('city', formData.city);
+      formDataToSend.append('bio', formData.bio);
+      formDataToSend.append('showOnHome', String(formData.showOnHome));
+      formDataToSend.append('showOnTeam', String(formData.showOnTeam));
+
+      // Keep existing photo if no new file is selected
+      if (!selectedFile) {
+        formDataToSend.append('photo', formData.photo);
+      } else {
+        formDataToSend.append('photo_file', selectedFile);
+      }
+
       if (editingMember) {
-        await axios.put(`${API_BASE_URL}/api/team-members/${editingMember._id}`, formData);
+        await axios.put(`${API_BASE_URL}/api/team-members/${editingMember._id}`, formDataToSend, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         showToast('Team member updated successfully!');
       } else {
-        await axios.post(`${API_BASE_URL}/api/team-members`, formData);
+        await axios.post(`${API_BASE_URL}/api/team-members`, formDataToSend, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         showToast('Team member added successfully!');
       }
       fetchTeamMembers();
@@ -206,6 +227,7 @@ export default function TeamManager() {
         showToast('Image size should be less than 2MB');
         return;
       }
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, photo: reader.result as string });
@@ -294,7 +316,11 @@ export default function TeamManager() {
 
                 <div className="w-20 h-20 bg-gradient-to-br from-[#0F1115] to-[#16181D] rounded-lg overflow-hidden flex-shrink-0 border border-[rgba(136,136,136,0.25)] hover:border-[#888888] transition-all duration-300">
                   {member.photo ? (
-                    <img src={member.photo} alt={member.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-110" />
+                    <img
+                      src={member.photo.startsWith('http') || member.photo.startsWith('data:') ? member.photo : `${API_BASE_URL}${member.photo}`}
+                      alt={member.name}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[#888888]">
                       <Upload className="w-8 h-8" />
@@ -357,7 +383,7 @@ export default function TeamManager() {
               <div className="mb-6 p-4 bg-gradient-to-r from-[#888888] to-[#022683] rounded-lg text-white shadow-lg animate-fade-in transition-all duration-300 hover:scale-105">
                 <div className="w-full aspect-square bg-gradient-to-br from-[#0F1115] to-[#16181D] rounded-lg mb-3 overflow-hidden border border-[rgba(136,136,136,0.25)]">
                   <img
-                    src={teamMembers.filter(m => m.showOnHome)[0].photo}
+                    src={teamMembers.filter(m => m.showOnHome)[0].photo.startsWith('http') || teamMembers.filter(m => m.showOnHome)[0].photo.startsWith('data:') ? teamMembers.filter(m => m.showOnHome)[0].photo : `${API_BASE_URL}${teamMembers.filter(m => m.showOnHome)[0].photo}`}
                     alt=""
                     className="w-full h-full object-cover"
                   />
