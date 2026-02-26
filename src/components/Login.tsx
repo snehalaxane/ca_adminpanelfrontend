@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
-// import loginBg from '../assets/login-bg.mp4'; // Commented out to prevent build error if missing
-const loginBg = "/src/assets/login-bg.mp4";
+import loginBg from '../assets/login-bg.mp4';
 import './Login.css';
 
 

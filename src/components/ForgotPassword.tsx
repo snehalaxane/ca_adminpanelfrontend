@@ -3,9 +3,8 @@ import { Lock, Mail, ArrowLeft, KeyRound, ShieldCheck, CheckCircle2, Eye, EyeOff
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import logo from '../assets/logo.png';
+import loginBg from '../assets/login-bg.mp4';
 import './Login.css';
-
-const loginBg = "/src/assets/login-bg.mp4";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
