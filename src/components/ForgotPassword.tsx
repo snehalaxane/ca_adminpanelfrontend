@@ -3,6 +3,9 @@ import { Lock, Mail, ArrowLeft, KeyRound, ShieldCheck, CheckCircle2, Eye, EyeOff
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import logo from '../assets/logo.png';
+import './Login.css';
+
+const loginBg = "/src/assets/login-bg.mp4";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
@@ -90,8 +93,22 @@ export default function ForgotPassword() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#0F1115] via-[#12141A] to-[#16181D] flex items-center justify-center p-4 font-sans">
-            <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-2xl shadow-2xl w-full max-w-md p-8 border border-[rgba(136,136,136,0.15)] relative overflow-hidden">
+        <div className="min-h-screen login-page-container flex items-center justify-center p-4 font-sans relative">
+            {/* Background Layer */}
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover"
+                >
+                    <source src={loginBg} type="video/mp4" />
+                </video>
+                <div className="absolute inset-0 bg-black/40"></div>
+            </div>
+
+            <div className="login-card rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-[9999] pointer-events-auto overflow-hidden">
                 {/* Glow effect */}
                 <div className="absolute -top-24 -left-24 w-48 h-48 bg-[#022683] blur-[100px] opacity-20"></div>
                 <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[#033aa0] blur-[100px] opacity-20"></div>
@@ -110,6 +127,10 @@ export default function ForgotPassword() {
                             {step === 2 && <ShieldCheck className="w-6 h-6 text-white" />}
                             {step === 3 && <KeyRound className="w-6 h-6 text-white" />}
                         </div>
+                    </div>
+                    {/* Logo Image added at top to match Login page */}
+                    <div className="mb-6">
+                        <img src={logo} alt="Raju & Prasad Logo" className="h-12 mx-auto object-contain" />
                     </div>
                     <h1 className="text-2xl font-bold text-white mb-6">
                         {step === 1 && 'Forgot Password'}
@@ -133,7 +154,7 @@ export default function ForgotPassword() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full pl-10 pr-4 py-3 bg-[#0F1115]/50 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#022683]/40 focus:border-[#022683]/50 transition-all duration-300"
+                                    className="block w-full pl-10 pr-4 py-3 login-input rounded-2xl text-white placeholder-gray-600 focus:outline-none transition-all duration-300"
                                     placeholder="admin@example.com"
                                     required
                                 />
@@ -142,7 +163,7 @@ export default function ForgotPassword() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-[#022683] to-[#033aa0] text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#022683]/20 hover:shadow-[#022683]/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3"
+                            className="w-full login-button text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#022683]/20 hover:shadow-[#022683]/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3"
                         >
                             {loading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -163,7 +184,7 @@ export default function ForgotPassword() {
                                     type="text"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
-                                    className="block w-full pl-12 pr-12 py-4 bg-[#0F1115]/50 border border-white/10 rounded-2xl text-white tracking-[0.75em] text-center font-bold text-2xl focus:outline-none focus:ring-2 focus:ring-[#022683]/40 focus:border-[#022683]/50 transition-all duration-300 placeholder:tracking-normal placeholder:text-gray-700"
+                                    className="block w-full pl-12 pr-12 py-4 login-input rounded-2xl text-white tracking-[0.75em] text-center font-bold text-2xl focus:outline-none transition-all duration-300 placeholder:tracking-normal placeholder:text-gray-700"
                                     maxLength={6}
                                     placeholder="000000"
                                     required
@@ -173,7 +194,7 @@ export default function ForgotPassword() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-[#022683] to-[#033aa0] text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#022683]/20 hover:shadow-[#022683]/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3"
+                            className="w-full login-button text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#022683]/20 hover:shadow-[#022683]/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3"
                         >
                             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify Code'}
                         </button>
@@ -199,7 +220,7 @@ export default function ForgotPassword() {
                                     type={showPassword ? "text" : "password"}
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    className="block w-full pl-10 pr-4 py-3 bg-[#0F1115]/50 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#022683]/40 focus:border-[#022683]/50 transition-all duration-300"
+                                    className="block w-full pl-10 pr-4 py-3 login-input rounded-2xl text-white placeholder-gray-600 focus:outline-none transition-all duration-300"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -221,7 +242,7 @@ export default function ForgotPassword() {
                                     type={showPassword ? "text" : "password"}
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="block w-full pl-10 pr-4 py-3 bg-[#0F1115]/50 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#022683]/40 focus:border-[#022683]/50 transition-all duration-300"
+                                    className="block w-full pl-10 pr-4 py-3 login-input rounded-2xl text-white placeholder-gray-600 focus:outline-none transition-all duration-300"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -232,7 +253,7 @@ export default function ForgotPassword() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-gradient-to-r from-[#022683] to-[#033aa0] text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#022683]/20 hover:shadow-[#022683]/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3 group"
+                                className="w-full login-button text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#022683]/20 hover:shadow-[#022683]/40 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-3 group"
                             >
                                 {loading ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -246,10 +267,16 @@ export default function ForgotPassword() {
                         </div>
                     </form>
                 )}
-
-                <div className="mt-8 pt-6 border-t border-[rgba(136,136,136,0.1)] text-center">
-                    <img src={logo} alt="Logo" className="h-8 mx-auto opacity-50 grayscale hover:grayscale-0 transition-all duration-500" />
+                <div className="mt-6 text-center text-xs text-[rgba(136,136,136,0.7)]">
+                    © 2026 Raju & Prasad – Chartered Accountants
                 </div>
+
+                {/* <div className="mt-2 pt-6 ">
+                    <img src={logo} alt="Logo" className="h-12 mx-auto opacity-100 transition-all duration-500" />
+                </div> */}
+                {/* <div className="mb-6">
+                    <img src={logo} alt="Raju & Prasad Logo" className="h-10 mx-auto object-contain" />
+                </div> */}
             </div>
         </div>
     );

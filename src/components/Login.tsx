@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Lock, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
+// import loginBg from '../assets/login-bg.mp4'; // Commented out to prevent build error if missing
+const loginBg = "/src/assets/login-bg.mp4";
+import './Login.css';
 
 
 interface LoginProps {
@@ -66,15 +69,30 @@ export default function Login({ onLogin }: LoginProps) {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F1115] via-[#12141A] to-[#16181D] flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded-lg shadow-2xl w-full max-w-md p-8 border border-[rgba(136,136,136,0.25)]">
+    <div className="min-h-screen login-page-container flex items-center justify-center p-4">
+      {/* Background Layer */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src={loginBg} type="video/mp4" />
+        </video>
+        {/* Dark Overlay - removed blur here to fix focus issues */}
+        <div className="absolute inset-0 bg-black/40"></div>
+      </div>
+
+      <div className="login-card rounded-lg shadow-2xl w-full max-w-md p-8 relative z-[9999] pointer-events-auto">
         <div className="text-center mb-8">
 
           {/* Lock above Logo Stack */}
           <div className="flex flex-col items-center justify-center gap-4 mb-6">
 
             {/* Lock Circle */}
-            <div className="w-16 h-16 bg-gradient-to-br from-[#022683] to-[#033aa0] rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 icon-circle rounded-full flex items-center justify-center shadow-lg">
               <Lock className="w-7 h-7 text-white" />
             </div>
 
@@ -88,9 +106,9 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           {/* Admin Panel Heading */}
-          <h1 className="text-2xl font-bold text-white mb-2">
+          {/* <h1 className="text-2xl font-bold text-white mb-2">
             Admin Panel
-          </h1>
+          </h1> */}
 
           {/* <p className="text-[#888888]">
             Raju & Prasad – Chartered Accountants
@@ -101,7 +119,7 @@ export default function Login({ onLogin }: LoginProps) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="email" className="block text-m font-medium text-white mb-2">
               Email
             </label>
             <div className="relative">
@@ -111,7 +129,7 @@ export default function Login({ onLogin }: LoginProps) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-white placeholder:text-[rgba(136,136,136,0.5)] transition-all duration-300 hover:border-[#888888]"
+                className="w-full pl-10 pr-4 py-3 login-input outline-none text-white placeholder:text-[rgba(136,136,136,0.5)] transition-all duration-300 hover:border-[#888888]"
                 placeholder="admin@example.com"
                 required
               />
@@ -119,7 +137,7 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="password" className="block text-m font-medium text-white mb-2">
               Password
             </label>
             <div className="relative">
@@ -129,7 +147,7 @@ export default function Login({ onLogin }: LoginProps) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-white placeholder:text-[rgba(136,136,136,0.5)] transition-all duration-300 hover:border-[#888888]"
+                className="w-full pl-10 pr-4 py-3 login-input outline-none text-white placeholder:text-[rgba(136,136,136,0.5)] transition-all duration-300 hover:border-[#888888]"
                 placeholder="••••••••"
                 required
               />
@@ -137,7 +155,7 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <div className="text-right">
-            <Link to="/forgot-password" className="text-sm text-[#888888] hover:text-white transition-colors duration-300">
+            <Link to="/forgot-password" className="text-sm text-[#888888] hover:text-gray-500 transition-colors duration-300">
               Forgot Password?
             </Link>
           </div>
@@ -151,10 +169,21 @@ export default function Login({ onLogin }: LoginProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#022683] to-[#033aa0] text-white py-3 rounded-lg font-medium transition-all duration-300
-             disabled:opacity-60 disabled:cursor-not-allowed"
+            className="relative overflow-hidden w-full 
+  login-button
+  text-white py-3 rounded-lg font-medium
+  transition-all duration-300
+  disabled:opacity-60 disabled:cursor-not-allowed
+  group"
           >
-            {loading ? "Logging in..." : "Secure Login"}
+            {/* Shine Layer */}
+            <span className="shine-layer">
+            </span>
+
+            {/* Text */}
+            <span className="relative z-10">
+              {loading ? "Logging in..." : "Secure Login"}
+            </span>
           </button>
 
         </form>
