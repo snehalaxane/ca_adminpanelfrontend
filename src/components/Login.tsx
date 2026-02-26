@@ -118,8 +118,8 @@ export default function Login({ onLogin }: LoginProps) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
-              Email
+            <label htmlFor="email" className="block text-sm font-medium text-[#022683] mb-2">
+              Username
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
@@ -136,7 +136,7 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-[#022683] mb-2">
               Password
             </label>
             <div className="relative">
@@ -154,7 +154,7 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <div className="text-right">
-            <Link to="/forgot-password" className="text-sm text-white hover:text-[#022683] transition-colors duration-300 forgot-password-link">
+            <Link to="/forgot-password" className="text-sm text-[#022683] hover:text-[#022683] transition-colors duration-300 forgot-password-link">
               Forgot Password?
             </Link>
           </div>
@@ -187,7 +187,7 @@ export default function Login({ onLogin }: LoginProps) {
 
         </form>
 
-        <div className="mt-6 text-center text-xs text-white">
+        <div className="mt-6 text-center text-xs text-[#022683]">
           © 2026 Raju & Prasad – Chartered Accountants
         </div>
       </div>
