@@ -128,7 +128,7 @@ export default function Login({ onLogin }: LoginProps) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 login-input outline-none text-white placeholder:text-[rgba(136,136,136,0.5)] transition-all duration-300 hover:border-[#888888]"
+                className="w-full pl-10 pr-4 py-3 login-input outline-none transition-all duration-300"
                 placeholder="admin@example.com"
                 required
               />
@@ -146,7 +146,7 @@ export default function Login({ onLogin }: LoginProps) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 login-input outline-none text-white placeholder:text-[rgba(136,136,136,0.5)] transition-all duration-300 hover:border-[#888888]"
+                className="w-full pl-10 pr-4 py-3 login-input outline-none transition-all duration-300"
                 placeholder="••••••••"
                 required
               />

@@ -146,9 +146,9 @@ export default function ForgotPassword() {
                 {step === 1 && (
                     <form onSubmit={handleSendOtp} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-white ml-2">Email Address</label>
+                            <label className="text-sm font-medium text-[#022683] ml-2">Email Address</label>
                             <div className="relative group transition-all duration-300">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 group-focus-within:text-[#033aa0] transition-colors pointer-events-none" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white group-focus-within:text-[#033aa0] transition-colors pointer-events-none" />
                                 <input
                                     type="email"
                                     value={email}
@@ -266,7 +266,7 @@ export default function ForgotPassword() {
                         </div>
                     </form>
                 )}
-                <div className="mt-6 text-center text-xs text-[rgba(136,136,136,0.7)]">
+                <div className="mt-6 text-center text-xs text-[#022683]">
                     © 2026 Raju & Prasad – Chartered Accountants
                 </div>
 
