@@ -83,11 +83,16 @@
     color: rgba(255, 255, 255, 0.4) !important;
 }
 
-/* 🛡️ Change Icon Color to Black when Autofilled & Ensure Visibility */
-.relative:has(input:-webkit-autofill) svg {
+/* 🛡️ Change Icon Color to Black when Autofilled (except Lock icon) */
+.relative:has(input:-webkit-autofill) svg:not(.lucide-lock) {
     color: #000000 !important;
     z-index: 20 !important;
-    /* Ensure it's above autofill layer */
+}
+
+/* Ensure Lock icon and top circle icon stay white */
+.lucide-lock,
+.icon-circle svg {
+    color: #ffffff !important;
 }
 
 /* Ensure icons are always above inputs */
