@@ -118,11 +118,11 @@ export default function Login({ onLogin }: LoginProps) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-m font-medium text-white mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#888888]" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
               <input
                 id="email"
                 type="email"
@@ -136,11 +136,11 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-m font-medium text-white mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#888888]" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
               <input
                 id="password"
                 type="password"
@@ -154,7 +154,7 @@ export default function Login({ onLogin }: LoginProps) {
           </div>
 
           <div className="text-right">
-            <Link to="/forgot-password" className="text-sm text-[#888888] hover:text-gray-500 transition-colors duration-300">
+            <Link to="/forgot-password" className="text-sm text-white hover:text-[#022683] transition-colors duration-300 forgot-password-link">
               Forgot Password?
             </Link>
           </div>
@@ -187,7 +187,7 @@ export default function Login({ onLogin }: LoginProps) {
 
         </form>
 
-        <div className="mt-6 text-center text-xs text-[rgba(136,136,136,0.7)]">
+        <div className="mt-6 text-center text-xs text-white">
           © 2026 Raju & Prasad – Chartered Accountants
         </div>
       </div>

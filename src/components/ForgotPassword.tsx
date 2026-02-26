@@ -146,7 +146,7 @@ export default function ForgotPassword() {
                 {step === 1 && (
                     <form onSubmit={handleSendOtp} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-400 ml-2">Email Address</label>
+                            <label className="text-sm font-medium text-white ml-2">Email Address</label>
                             <div className="relative group transition-all duration-300">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 group-focus-within:text-[#033aa0] transition-colors pointer-events-none" />
                                 <input

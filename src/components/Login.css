@@ -84,5 +84,29 @@
 }
 
 .shine-layer {
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-20deg);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.login-button:hover .shine-layer {
+    left: 150%;
+    transition: all 0.7s ease;
+}
+
+.forgot-password-link {
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.forgot-password-link:hover {
+    color: #022683 !important;
+    /* light blue for better visibility on dark */
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
 }
