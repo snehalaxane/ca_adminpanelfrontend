@@ -27,10 +27,10 @@ export default function HomePageManager() {
     title: "",
     description: "",
     stats: [
-      { number: "", label: "", icon: "Award" },
-      { number: "", label: "", icon: "MapPin" },
-      { number: "", label: "", icon: "Briefcase" },
-      { number: "", label: "", icon: "Users" },
+      { icon: "" },
+      { icon: "" },
+      { icon: "" },
+      { icon: "" },
     ],
     enabled: false,
   });
@@ -112,15 +112,13 @@ export default function HomePageManager() {
             description: data.description ?? "",
             stats: data.stats?.length
               ? data.stats.map((s: any) => ({
-                number: s.number ?? "",
-                label: s.label ?? "",
                 icon: s.icon ? (s.icon.startsWith('http') ? s.icon : `${API_BASE_URL}${s.icon}`) : ""
               }))
               : [
-                { number: "", label: "", icon: "" },
-                { number: "", label: "", icon: "" },
-                { number: "", label: "", icon: "" },
-                { number: "", label: "", icon: "" },
+                { icon: "" },
+                { icon: "" },
+                { icon: "" },
+                { icon: "" },
               ],
             enabled: data.enabled ?? false,
           });
@@ -182,8 +180,6 @@ export default function HomePageManager() {
 
       // Send stats as JSON string
       formData.append("stats", JSON.stringify(aboutData.stats.map(s => ({
-        number: s.number,
-        label: s.label,
         icon: s.icon // keep existing path if no new file
       }))));
 
@@ -522,56 +518,43 @@ export default function HomePageManager() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   {aboutData.stats?.map((stat, index) => (
-
                     <div key={index} className="p-4 border border-[rgba(136,136,136,0.25)] bg-[#0F1115] rounded-lg transition-all duration-300 hover:border-[#888888] hover-card-lift animate-fade-in" style={{ animationDelay: `${0.25 + index * 0.05}s` }}>
-                      <div className="flex items-center gap-3 mb-3">
-                        <label className="flex-shrink-0 cursor-pointer p-2 bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded-lg hover:border-[#888888] transition-all">
-                          <ImageIcon className="w-4 h-4 text-[#888888]" />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            hidden
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const newFiles = [...aboutIconFiles];
-                                newFiles[index] = file;
-                                setAboutIconFiles(newFiles);
+                      <div className="flex flex-col items-center justify-center gap-4">
+                        <div className="relative group/img w-full aspect-video bg-[#16181D] rounded-lg border border-dashed border-[rgba(136,136,136,0.25)] flex items-center justify-center overflow-hidden">
+                          {stat.icon ? (
+                            <img src={stat.icon} alt={`Image ${index + 1}`} className="w-full h-full object-contain" />
+                          ) : (
+                            <ImageIcon className="w-8 h-8 text-[#888888]" />
+                          )}
+                          <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                            <div className="flex flex-col items-center gap-2">
+                              <Edit className="w-6 h-6 text-white" />
+                              <span className="text-white text-xs font-medium">Change Image</span>
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const newFiles = [...aboutIconFiles];
+                                  newFiles[index] = file;
+                                  setAboutIconFiles(newFiles);
 
-                                // Preview locally
-                                const newStats = [...aboutData.stats];
-                                newStats[index].icon = URL.createObjectURL(file);
-                                setAboutData({ ...aboutData, stats: newStats });
-                              }
-                            }}
-                          />
-                        </label>
-                        {stat.icon && (
-                          <img src={stat.icon} alt="icon" className="w-8 h-8 object-contain rounded" />
-                        )}
+                                  // Preview locally
+                                  const newStats = [...aboutData.stats];
+                                  newStats[index].icon = URL.createObjectURL(file);
+                                  setAboutData({ ...aboutData, stats: newStats });
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                        <div className="text-[#888888] text-xs font-medium uppercase tracking-wider">
+                          Image {index + 1}
+                        </div>
                       </div>
-                      <input
-                        type="text"
-                        value={stat.number}
-                        onChange={(e) => {
-                          const newStats = [...aboutData.stats];
-                          newStats[index].number = e.target.value;
-                          setAboutData({ ...aboutData, stats: newStats });
-                        }}
-                        className="w-full px-2 py-1 mb-2 bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300"
-                        placeholder="Number"
-                      />
-                      <input
-                        type="text"
-                        value={stat.label}
-                        onChange={(e) => {
-                          const newStats = [...aboutData.stats];
-                          newStats[index].label = e.target.value;
-                          setAboutData({ ...aboutData, stats: newStats });
-                        }}
-                        className="w-full px-2 py-1 bg-[#16181D] border border-[rgba(136,136,136,0.25)] rounded focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] transition-all duration-300"
-                        placeholder="Label"
-                      />
                     </div>
                   ))}
                 </div>
@@ -642,15 +625,13 @@ export default function HomePageManager() {
                 <p className="text-sm text-[#888888] mb-3">{aboutData.description}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {aboutData.stats?.map((stat, index) => (
-
-                    <div key={index} className="text-center p-2 bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded border border-[rgba(136,136,136,0.25)] transition-all duration-300 hover:scale-105 hover-card-lift">
-                      {stat.icon && (
-                        <img src={stat.icon} alt="icon" className="w-6 h-6 object-contain mx-auto mb-1 opacity-80" />
+                    <div key={index} className="text-center p-2 bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded border border-[rgba(136,136,136,0.25)] transition-all duration-300 hover:scale-105 hover-card-lift aspect-video flex items-center justify-center">
+                      {stat.icon ? (
+                        <img src={stat.icon} alt="icon" className="w-full h-full object-contain opacity-80" />
+                      ) : (
+                        <ImageIcon className="w-6 h-6 text-[#888888] opacity-50" />
                       )}
-                      <div className="font-bold text-[#888888] text-sm">{stat.number}</div>
-                      <div className="text-xs text-[#888888]">{stat.label}</div>
                     </div>
-
                   ))}
                 </div>
               </div>
