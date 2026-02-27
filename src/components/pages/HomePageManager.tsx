@@ -179,8 +179,9 @@ export default function HomePageManager() {
       formData.append("enabled", String(aboutData.enabled));
 
       // Send stats as JSON string
+      // Strip blob: preview URLs — only keep real server paths
       formData.append("stats", JSON.stringify(aboutData.stats.map(s => ({
-        icon: s.icon // keep existing path if no new file
+        icon: s.icon?.startsWith("blob:") ? "" : (s.icon || "")
       }))));
 
       // Append icon files with indexed names
