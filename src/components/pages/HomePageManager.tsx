@@ -183,11 +183,19 @@ export default function HomePageManager() {
       formData.append("enabled", String(aboutData.enabled));
 
       // Send stats as JSON string
-      // Strip blob: preview URLs — only keep real server paths
-      formData.append("stats", JSON.stringify(aboutData.stats.map(s => ({
-        image: s.image?.startsWith("blob:") ? "" : (s.image || ""),
-        text: s.text || ""
-      }))));
+      // Strip blob: preview URLs — only keep real server paths (relative to root)
+      formData.append("stats", JSON.stringify(aboutData.stats.map(s => {
+        let saveImg = s.image || "";
+        // If it's a blob preview, clear it (backend will fill it)
+        if (saveImg.startsWith("blob:")) {
+          saveImg = "";
+        }
+        // If it's a server URL, strip the base to keep it relative in DB
+        else if (API_BASE_URL && saveImg.startsWith(API_BASE_URL)) {
+          saveImg = saveImg.replace(API_BASE_URL, "");
+        }
+        return { image: saveImg, text: s.text || "" };
+      })));
 
       // Append image files with indexed names
       aboutImageFiles.forEach((file, index) => {
