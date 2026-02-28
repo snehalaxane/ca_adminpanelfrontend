@@ -27,10 +27,10 @@ export default function HomePageManager() {
     title: "",
     description: "",
     stats: [
-      { icon: "" },
-      { icon: "" },
-      { icon: "" },
-      { icon: "" },
+      { image: "", text: "" },
+      { image: "", text: "" },
+      { image: "", text: "" },
+      { image: "", text: "" },
     ],
     enabled: false,
   });
@@ -42,7 +42,7 @@ export default function HomePageManager() {
 
   const [toast, setToast] = useState('');
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null);
-  const [aboutIconFiles, setAboutIconFiles] = useState<(File | null)[]>([null, null, null, null]);
+  const [aboutImageFiles, setAboutImageFiles] = useState<(File | null)[]>([null, null, null, null]);
 
   const saveHero = async () => {
     try {
@@ -111,14 +111,18 @@ export default function HomePageManager() {
             title: data.title ?? "",
             description: data.description ?? "",
             stats: data.stats?.length
-              ? data.stats.map((s: any) => ({
-                icon: s.icon ? (s.icon.startsWith('http') ? s.icon : `${API_BASE_URL}${s.icon}`) : ""
-              }))
+              ? data.stats.map((s: any) => {
+                const imgPath = s.image || s.icon || "";
+                return {
+                  image: imgPath ? (imgPath.startsWith('http') ? imgPath : `${API_BASE_URL}${imgPath}`) : "",
+                  text: s.text ?? ""
+                };
+              })
               : [
-                { icon: "" },
-                { icon: "" },
-                { icon: "" },
-                { icon: "" },
+                { image: "", text: "" },
+                { image: "", text: "" },
+                { image: "", text: "" },
+                { image: "", text: "" },
               ],
             enabled: data.enabled ?? false,
           });
@@ -181,13 +185,14 @@ export default function HomePageManager() {
       // Send stats as JSON string
       // Strip blob: preview URLs — only keep real server paths
       formData.append("stats", JSON.stringify(aboutData.stats.map(s => ({
-        icon: s.icon?.startsWith("blob:") ? "" : (s.icon || "")
+        image: s.image?.startsWith("blob:") ? "" : (s.image || ""),
+        text: s.text || ""
       }))));
 
-      // Append icon files with indexed names
-      aboutIconFiles.forEach((file, index) => {
+      // Append image files with indexed names
+      aboutImageFiles.forEach((file, index) => {
         if (file) {
-          formData.append(`stat_icon_${index}`, file);
+          formData.append(`stat_image_${index}`, file);
         }
       });
 
@@ -203,7 +208,7 @@ export default function HomePageManager() {
 
       setToast("About Section saved successfully!");
       // Reset files after save
-      setAboutIconFiles([null, null, null, null]);
+      setAboutImageFiles([null, null, null, null]);
     } catch (error) {
       setToast("Failed to save About Section");
     }
@@ -522,8 +527,8 @@ export default function HomePageManager() {
                     <div key={index} className="p-4 border border-[rgba(136,136,136,0.25)] bg-[#0F1115] rounded-lg transition-all duration-300 hover:border-[#888888] hover-card-lift animate-fade-in" style={{ animationDelay: `${0.25 + index * 0.05}s` }}>
                       <div className="flex flex-col items-center justify-center gap-4">
                         <div className="relative group/img w-full aspect-video bg-[#16181D] rounded-lg border border-dashed border-[rgba(136,136,136,0.25)] flex items-center justify-center overflow-hidden">
-                          {stat.icon ? (
-                            <img src={stat.icon} alt={`Image ${index + 1}`} className="w-full h-full object-contain" />
+                          {stat.image ? (
+                            <img src={stat.image} alt={`Image ${index + 1}`} className="w-full h-full object-contain" />
                           ) : (
                             <ImageIcon className="w-8 h-8 text-[#888888]" />
                           )}
@@ -539,13 +544,15 @@ export default function HomePageManager() {
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  const newFiles = [...aboutIconFiles];
+                                  const newFiles = [...aboutImageFiles];
                                   newFiles[index] = file;
-                                  setAboutIconFiles(newFiles);
+                                  setAboutImageFiles(newFiles);
 
                                   // Preview locally
                                   const newStats = [...aboutData.stats];
-                                  newStats[index].icon = URL.createObjectURL(file);
+                                  newStats[index].image = URL.createObjectURL(file);
+                                  // Preserve existing text for this stat
+                                  newStats[index].text = newStats[index].text || "";
                                   setAboutData({ ...aboutData, stats: newStats });
                                 }
                               }}
@@ -555,6 +562,17 @@ export default function HomePageManager() {
                         <div className="text-[#888888] text-xs font-medium uppercase tracking-wider">
                           Image {index + 1}
                         </div>
+                        <input
+                          type="text"
+                          value={stat.text}
+                          onChange={(e) => {
+                            const newStats = [...aboutData.stats];
+                            newStats[index].text = e.target.value;
+                            setAboutData({ ...aboutData, stats: newStats });
+                          }}
+                          className="w-full px-3 py-1.5 bg-[#0F1115] border border-[rgba(136,136,136,0.25)] rounded-lg focus:ring-2 focus:ring-[#022683] focus:border-[#022683] outline-none text-[#E6E6E6] text-sm"
+                          placeholder={`Stat ${index + 1} Text`}
+                        />
                       </div>
                     </div>
                   ))}
@@ -626,11 +644,14 @@ export default function HomePageManager() {
                 <p className="text-sm text-[#888888] mb-3">{aboutData.description}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {aboutData.stats?.map((stat, index) => (
-                    <div key={index} className="text-center p-2 bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded border border-[rgba(136,136,136,0.25)] transition-all duration-300 hover:scale-105 hover-card-lift aspect-video flex items-center justify-center">
-                      {stat.icon ? (
-                        <img src={stat.icon} alt="icon" className="w-full h-full object-contain opacity-80" />
+                    <div key={index} className="text-center p-2 bg-gradient-to-br from-[#16181D] to-[#1a1d24] rounded border border-[rgba(136,136,136,0.25)] transition-all duration-300 hover:scale-105 hover-card-lift aspect-video flex flex-col items-center justify-center">
+                      {stat.image ? (
+                        <img src={stat.image} alt="icon" className="max-w-full max-h-full object-contain opacity-80" />
                       ) : (
                         <ImageIcon className="w-6 h-6 text-[#888888] opacity-50" />
+                      )}
+                      {stat.text && (
+                        <p className="mt-1 text-xs text-[#E6E6E6] text-center">{stat.text}</p>
                       )}
                     </div>
                   ))}
